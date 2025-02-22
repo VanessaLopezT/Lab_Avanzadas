@@ -6,19 +6,16 @@ package conceptospoo;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.*;
-import java.io.Serializable;
-     
+
 /**
  *
  * @author Estudiante_MCA
  */
 public class CursoProfesores {
     private static final long serialVersionUID=1L; // Para mantener compatibilidad en serialización
-    
     private List<CursoProfesor> listado=new ArrayList<CursoProfesor>();
     
-    private static final String archivo="personas.dat"; // Nombre del archivo binario
-
+    
     @Override
     public String toString() {
         return "CursoProfesores{" + "listado=" + listado + '}';
@@ -27,20 +24,35 @@ public class CursoProfesores {
     public void inscribir(CursoProfesor cursoProfesor){
         listado.add(cursoProfesor);
     }   
-    public void guardainformacion(CursoProfesor cursoProfesor){
+    public void guardainformacion(CursoProfesor cursoprofesor1){
     try {
-        FileOutputStream archivo= new FileOutputStream("CursosProfesores.bin");
+        FileOutputStream archivo= new FileOutputStream("CursoProfesor.bin");
         ObjectOutputStream escritura=new ObjectOutputStream(archivo);
         
-        escritura.writeObject(cursoProfesor);
-        System.out.print("\nObjeto añadido con exito");
+        escritura.writeObject(cursoprofesor1);
+        System.out.print("\nguardainformacion-->Objeto CursoProfesor anadido con exito");
         escritura.close();
     } catch (IOException error){
         error.printStackTrace(System.out);
     }
     }
     
-    public void cargarDatos(){};
+    public void cargarDatos() {
+    try {
+        FileInputStream archivo = new FileInputStream("CursoProfesor.bin");
+        ObjectInputStream lectura = new ObjectInputStream(archivo);
+        
+        CursoProfesor CursoProfesorRecuperado = (CursoProfesor) lectura.readObject();
+        
+        System.out.println("\ncargarDatos-->Objeto CursoProfesor leido con exito: ");
+        System.out.println(CursoProfesorRecuperado); // Esto imprimirá la información del objeto
+        
+        lectura.close();
+    } catch (IOException | ClassNotFoundException e) {
+        System.out.println("Error al leer el archivo:");
+        e.printStackTrace();
+    }
+}
 
     
     

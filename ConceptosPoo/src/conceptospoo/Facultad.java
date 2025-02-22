@@ -4,11 +4,13 @@
  */
 package conceptospoo;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Estudiante_MCA
  */
-public class Facultad {
+public class Facultad implements Serializable{
     private double ID;
     private String nombre;
     private Persona decano;

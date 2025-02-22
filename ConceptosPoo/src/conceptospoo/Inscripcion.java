@@ -3,7 +3,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package conceptospoo;
-import java.io.*;
 import java.io.Serializable;
    
 /**

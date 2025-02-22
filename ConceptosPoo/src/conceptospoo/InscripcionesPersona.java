@@ -40,7 +40,7 @@ public class InscripcionesPersona implements Serializable{
         ObjectOutputStream escritura=new ObjectOutputStream(archivo);
         
         escritura.writeObject(persona);
-        System.out.print("Objeto añadido con exito");
+        System.out.print("\nguardainformacion-->Objeto Persona anadido con exito ");
         escritura.close();
     } catch (IOException error){
         error.printStackTrace(System.out);
@@ -49,9 +49,21 @@ public class InscripcionesPersona implements Serializable{
     
 
     
-    public void cargarDatos(){
-    
-    
+    public void cargarDatos() {
+    try {
+        FileInputStream archivo = new FileInputStream("personas.bin");
+        ObjectInputStream lectura = new ObjectInputStream(archivo);
+        
+        Persona personaRecuperada = (Persona) lectura.readObject();
+        
+        System.out.println("\ncargarDatos-->Objeto Persona leido con exito: ");
+        System.out.println(personaRecuperada); // Esto imprimirá la información del objeto
+        
+        lectura.close();
+    } catch (IOException | ClassNotFoundException e) {
+        System.out.println("Error al leer el archivo:");
+        e.printStackTrace();
+    }
 }
 
     

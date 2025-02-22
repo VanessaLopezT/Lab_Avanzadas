@@ -12,12 +12,11 @@ import java.io.Serializable;
  *
  * @author Estudiante_MCA
  */
-public class CursosInscritos {
+public class CursosInscritos implements Serializable{
     private List<Inscripcion> listado= new ArrayList<Inscripcion>();
     private static final long serialVersionUID=1L; // Para mantener compatibilidad en serialización
     
-    private static final String archivo="personas.dat"; // Nombre del archivo binario
-
+    
     
     @Override
     public String toString() {
@@ -46,13 +45,29 @@ public class CursosInscritos {
         ObjectOutputStream escritura=new ObjectOutputStream(archivo);
         
         escritura.writeObject(inscripcion);
-        System.out.print("Objeto añadido con exito");
+        System.out.print("\nguardainformacion-->Objeto inscripcion anadido con exito");
         escritura.close();
     } catch (IOException error){
         error.printStackTrace(System.out);
     }
     }
     
-    public void cargarDatos(){};
+    public void cargarDatos() {
+    try {
+        FileInputStream archivo = new FileInputStream("inscripciones.bin");
+        ObjectInputStream lectura = new ObjectInputStream(archivo);
+        
+        Inscripcion inscripcionRecuperada = (Inscripcion) lectura.readObject();
+        
+        System.out.println("\ncargarDatos-->Objeto inscripcion leido con exito: ");
+        System.out.println(inscripcionRecuperada); // Esto imprimirá la información del objeto
+        
+        lectura.close();
+    } catch (IOException | ClassNotFoundException e) {
+        System.out.println("Error al leer el archivo:");
+        e.printStackTrace();
+    }
+}
+
     
 }

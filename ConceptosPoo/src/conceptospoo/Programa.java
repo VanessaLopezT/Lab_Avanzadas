@@ -3,12 +3,13 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package conceptospoo;
+import java.io.Serializable;
 import java.util.Date;
 /**
  *
  * @author Estudiante_MCA
  */
-public class Programa {
+public class Programa implements Serializable{
     private double ID;
     private String nombre;
     private double duracion;

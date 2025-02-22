@@ -4,11 +4,13 @@
  */
 package conceptospoo;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Estudiante_MCA
  */
-public class Curso {
+public class Curso implements Serializable{
     private Integer ID;
     private Programa programa;
     private boolean activo;

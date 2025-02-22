@@ -3,7 +3,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package conceptospoo;
-import java.io.*;
 import java.io.Serializable;
    
 /**
@@ -12,20 +11,20 @@ import java.io.Serializable;
  */
 public class CursoProfesor implements Serializable{
     private Profesor profesor;
-    private Integer año;
+    private Integer anio;
     private Integer semestre;
     private Curso curso;
 
-    public CursoProfesor(Profesor profesor, Integer año, Integer semestre, Curso curso) {
+    public CursoProfesor(Profesor profesor, Integer anio, Integer semestre, Curso curso) {
         this.profesor = profesor;
-        this.año = año;
+        this.anio = anio;
         this.semestre = semestre;
         this.curso = curso;
     }
 
     @Override
     public String toString() {
-        return "CursoProfesor{" + "profesor=" + profesor.toString() + ", a\u00f1o=" + año + ", semestre=" + semestre + ", curso=" + curso.toString() + '}';
+        return "CursoProfesor{" + "profesor=" + profesor.toString() + ", anio=" + anio + ", semestre=" + semestre + ", curso=" + curso.toString() + '}';
     }
 
     public Profesor getProfesor() {
@@ -37,11 +36,11 @@ public class CursoProfesor implements Serializable{
     }
 
     public Integer getAño() {
-        return año;
+        return anio;
     }
 
     public void setAño(Integer año) {
-        this.año = año;
+        this.anio = año;
     }
 
     public Integer getSemestre() {
