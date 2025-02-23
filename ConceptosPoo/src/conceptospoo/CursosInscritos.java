@@ -12,8 +12,8 @@ import java.io.Serializable;
  *
  * @author Estudiante_MCA
  */
-public class CursosInscritos implements Serializable{
-    private List<Inscripcion> listado= new ArrayList<Inscripcion>();
+public class CursosInscritos implements Serializable, Servicios{
+    private List<Inscripcion> listado= new ArrayList<>();
     private static final long serialVersionUID=1L; // Para mantener compatibilidad en serialización
     
     
@@ -45,7 +45,7 @@ public class CursosInscritos implements Serializable{
         ObjectOutputStream escritura=new ObjectOutputStream(archivo);
         
         escritura.writeObject(inscripcion);
-        System.out.print("\nguardainformacion-->Objeto inscripcion anadido con exito");
+        System.out.print("\nguardainformacion--> Objeto inscripcion anadido con exito");
         escritura.close();
     } catch (IOException error){
         error.printStackTrace(System.out);
@@ -59,7 +59,7 @@ public class CursosInscritos implements Serializable{
         
         Inscripcion inscripcionRecuperada = (Inscripcion) lectura.readObject();
         
-        System.out.println("\ncargarDatos-->Objeto inscripcion leido con exito: ");
+        System.out.println("\ncargarDatos--> Objeto inscripcion leido con exito: ");
         System.out.println(inscripcionRecuperada); // Esto imprimirá la información del objeto
         
         lectura.close();
@@ -68,6 +68,25 @@ public class CursosInscritos implements Serializable{
         e.printStackTrace();
     }
 }
+    
+    @Override
+    public String ImprimirPosicion(int posicion) {
+        return (posicion >= 0 && posicion < listado.size()) ? listado.get(posicion).toString() : "Posición fuera de rango";
+    }
+
+    @Override
+    public int cantidadActual() {
+        return listado.size();
+    }
+    
+    @Override
+    public List<String> ImprimirListado() {
+        List<String> inscripciones = new ArrayList<>();
+        for (Inscripcion inscripcion : listado) {
+            inscripciones.add("\n"+inscripcion.toString());
+        }
+        return inscripciones;
+    }
 
     
 }

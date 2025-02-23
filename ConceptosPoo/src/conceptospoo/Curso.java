@@ -12,24 +12,36 @@ import java.io.Serializable;
  */
 public class Curso implements Serializable{
     private Integer ID;
+    private String NombreCurso;
     private Programa programa;
     private boolean activo;
 
-    public Curso(Integer ID, Programa programa, boolean activo) {
+    public Curso(Integer ID, String NombreCurso, Programa programa, boolean activo) {
         this.ID = ID;
+        this.NombreCurso = NombreCurso;
         this.programa = programa;
         this.activo = activo;
     }
 
     @Override
     public String toString() {
-        return "Curso{" + "ID=" + ID + ", programa=" + programa.toString() + ", activo=" + activo + '}';
+        return "Curso{" + "ID=" + ID + ", NombreCurso=" + NombreCurso + ", programa=" + programa + ", activo=" + activo + '}';
     }
+
 
     public Integer getID() {
         return ID;
     }
 
+    public String getNombreCurso() {
+        return NombreCurso;
+    }
+
+    public void setNombreCurso(String NombreCurso) {
+        this.NombreCurso = NombreCurso;
+    }
+
+    
     public void setID(Integer ID) {
         this.ID = ID;
     }

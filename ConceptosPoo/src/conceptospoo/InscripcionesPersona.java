@@ -12,7 +12,7 @@ import java.io.Serializable;
  *
  * @author Estudiante_MCA
  */
-public class InscripcionesPersona implements Serializable{
+public class InscripcionesPersona implements Serializable, Servicios{
     private static final long serialVersionUID=1L; // Para mantener compatibilidad en serialización
     
     private List<Persona> listado= new ArrayList<Persona>();
@@ -34,13 +34,15 @@ public class InscripcionesPersona implements Serializable{
         }
     }
     
+    
+    
     public void guardainformacion(Persona persona){
     try {
         FileOutputStream archivo= new FileOutputStream("personas.bin");
         ObjectOutputStream escritura=new ObjectOutputStream(archivo);
         
         escritura.writeObject(persona);
-        System.out.print("\nguardainformacion-->Objeto Persona anadido con exito ");
+        System.out.print("\nguardainformacion--> Objeto Persona anadido con exito ");
         escritura.close();
     } catch (IOException error){
         error.printStackTrace(System.out);
@@ -56,7 +58,7 @@ public class InscripcionesPersona implements Serializable{
         
         Persona personaRecuperada = (Persona) lectura.readObject();
         
-        System.out.println("\ncargarDatos-->Objeto Persona leido con exito: ");
+        System.out.println("\ncargarDatos--> Objeto Persona leido con exito: ");
         System.out.println(personaRecuperada); // Esto imprimirá la información del objeto
         
         lectura.close();
@@ -64,7 +66,29 @@ public class InscripcionesPersona implements Serializable{
         System.out.println("Error al leer el archivo:");
         e.printStackTrace();
     }
+    
+    
 }
+    @Override
+    public String ImprimirPosicion(int posicion) {
+        return (posicion >= 0 && posicion < listado.size()) ? listado.get(posicion).toString() : "Posición fuera de rango";
+    }
+
+    @Override
+    public int cantidadActual() {
+        return listado.size();
+    }
+
+    @Override
+    public List<String> ImprimirListado() {
+    List<String> personas = new ArrayList<>();
+    for (Persona persona : listado) {
+        personas.add(persona.toString() + "\n"); // Agrega un salto de línea al final de cada persona
+    }
+    return personas;
+}
+
+
 
     
 }

@@ -11,7 +11,7 @@ import java.io.*;
  *
  * @author Estudiante_MCA
  */
-public class CursoProfesores {
+public class CursoProfesores implements Serializable, Servicios{
     private static final long serialVersionUID=1L; // Para mantener compatibilidad en serialización
     private List<CursoProfesor> listado=new ArrayList<CursoProfesor>();
     
@@ -30,7 +30,7 @@ public class CursoProfesores {
         ObjectOutputStream escritura=new ObjectOutputStream(archivo);
         
         escritura.writeObject(cursoprofesor1);
-        System.out.print("\nguardainformacion-->Objeto CursoProfesor anadido con exito");
+        System.out.print("\nguardainformacion--> Objeto CursoProfesor anadido con exito");
         escritura.close();
     } catch (IOException error){
         error.printStackTrace(System.out);
@@ -44,7 +44,7 @@ public class CursoProfesores {
         
         CursoProfesor CursoProfesorRecuperado = (CursoProfesor) lectura.readObject();
         
-        System.out.println("\ncargarDatos-->Objeto CursoProfesor leido con exito: ");
+        System.out.println("\ncargarDatos--> Objeto CursoProfesor leido con exito: ");
         System.out.println(CursoProfesorRecuperado); // Esto imprimirá la información del objeto
         
         lectura.close();
@@ -53,7 +53,28 @@ public class CursoProfesores {
         e.printStackTrace();
     }
 }
+    @Override
+    public String ImprimirPosicion(int posicion) {
+        return (posicion >= 0 && posicion < listado.size()) ? listado.get(posicion).toString() : "Posición fuera de rango";
+    }
+
+    @Override
+    public int cantidadActual() {
+        return listado.size();
+    }
+
+    @Override
+    public List<String> ImprimirListado() {
+        List<String> cursos = new ArrayList<>();
+        for (CursoProfesor cursoProfesor : listado) {
+            cursos.add("\n"+cursoProfesor.toString());
+        }
+        return cursos;
+    }
+    
+
+}
 
     
     
-}
+
