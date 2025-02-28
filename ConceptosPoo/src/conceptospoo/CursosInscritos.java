@@ -39,28 +39,30 @@ public class CursosInscritos implements Serializable, Servicios{
         }
     }
     
-     public void guardainformacion(Inscripcion inscripcion){
+     public void guardainformacion() {
     try {
-        FileOutputStream archivo= new FileOutputStream("inscripciones.bin");
-        ObjectOutputStream escritura=new ObjectOutputStream(archivo);
+        FileOutputStream archivo = new FileOutputStream("inscripciones.bin");
+        ObjectOutputStream escritura = new ObjectOutputStream(archivo);
         
-        escritura.writeObject(inscripcion);
-        System.out.print("\nguardainformacion--> Objeto inscripcion anadido con exito");
+        escritura.writeObject(listado); // Guardar lista completa en binario
+        System.out.print("\nguardainformacion--> Lista de Inscripciones aniadida con exito.");
         escritura.close();
-    } catch (IOException error){
+    } catch (IOException error) {
         error.printStackTrace(System.out);
     }
-    }
-    
+}
+
     public void cargarDatos() {
     try {
         FileInputStream archivo = new FileInputStream("inscripciones.bin");
         ObjectInputStream lectura = new ObjectInputStream(archivo);
         
-        Inscripcion inscripcionRecuperada = (Inscripcion) lectura.readObject();
+        List<Inscripcion> listaInscripcionesRecuperada = (List<Inscripcion>) lectura.readObject();
         
-        System.out.println("\ncargarDatos--> Objeto inscripcion leido con exito: ");
-        System.out.println(inscripcionRecuperada); // Esto imprimirá la información del objeto
+        System.out.println("\ncargarDatos--> Lista de Inscripciones leida con exito:");
+        for (Inscripcion inscripcion : listaInscripcionesRecuperada) {
+            System.out.println(inscripcion); // Imprimir cada objeto Inscripcion
+        }
         
         lectura.close();
     } catch (IOException | ClassNotFoundException e) {
@@ -68,6 +70,7 @@ public class CursosInscritos implements Serializable, Servicios{
         e.printStackTrace();
     }
 }
+ 
     
     @Override
     public String ImprimirPosicion(int posicion) {

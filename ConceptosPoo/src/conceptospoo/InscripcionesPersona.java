@@ -36,38 +36,36 @@ public class InscripcionesPersona implements Serializable, Servicios{
     
     
     
-    public void guardainformacion(Persona persona){
+    public void guardainformacion() {
     try {
-        FileOutputStream archivo= new FileOutputStream("personas.bin");
-        ObjectOutputStream escritura=new ObjectOutputStream(archivo);
+        FileOutputStream archivo = new FileOutputStream("personas.bin");
+        ObjectOutputStream escritura = new ObjectOutputStream(archivo);
         
-        escritura.writeObject(persona);
-        System.out.print("\nguardainformacion--> Objeto Persona anadido con exito ");
+        escritura.writeObject(listado); // Guardar lista completa en binario
+        System.out.print("\nguardainformacion--> Lista de Persona aniadida con exito.");
         escritura.close();
-    } catch (IOException error){
+    } catch (IOException error) {
         error.printStackTrace(System.out);
     }
-    }
-    
+}
 
-    
     public void cargarDatos() {
     try {
         FileInputStream archivo = new FileInputStream("personas.bin");
         ObjectInputStream lectura = new ObjectInputStream(archivo);
         
-        Persona personaRecuperada = (Persona) lectura.readObject();
+        List<Persona> listaPersonasRecuperadas = (List<Persona>) lectura.readObject();
         
-        System.out.println("\ncargarDatos--> Objeto Persona leido con exito: ");
-        System.out.println(personaRecuperada); // Esto imprimirá la información del objeto
+        System.out.println("\ncargarDatos--> Lista de Persona leida con exito:");
+        for (Persona persona : listaPersonasRecuperadas) {
+            System.out.println(persona); // Imprimir cada objeto Persona
+        }
         
         lectura.close();
     } catch (IOException | ClassNotFoundException e) {
         System.out.println("Error al leer el archivo:");
         e.printStackTrace();
     }
-    
-    
 }
     @Override
     public String ImprimirPosicion(int posicion) {

@@ -11,7 +11,7 @@ import java.io.*;
  *
  * @author Estudiante_MCA
  */
-public class CursoProfesores implements Serializable, Servicios{
+    public class CursoProfesores implements Serializable, Servicios{
     private static final long serialVersionUID=1L; // Para mantener compatibilidad en serialización
     private List<CursoProfesor> listado=new ArrayList<CursoProfesor>();
     
@@ -24,28 +24,30 @@ public class CursoProfesores implements Serializable, Servicios{
     public void inscribir(CursoProfesor cursoProfesor){
         listado.add(cursoProfesor);
     }   
-    public void guardainformacion(CursoProfesor cursoprofesor1){
+    public void guardainformacion() {
     try {
-        FileOutputStream archivo= new FileOutputStream("CursoProfesor.bin");
-        ObjectOutputStream escritura=new ObjectOutputStream(archivo);
+        FileOutputStream archivo = new FileOutputStream("CursoProfesor.bin");
+        ObjectOutputStream escritura = new ObjectOutputStream(archivo);
         
-        escritura.writeObject(cursoprofesor1);
-        System.out.print("\nguardainformacion--> Objeto CursoProfesor anadido con exito");
+        escritura.writeObject(listado); // Guardar lista completa en binario
+        System.out.print("\nguardainformacion--> Lista de CursoProfesor aniadida con exito.");
         escritura.close();
-    } catch (IOException error){
+    } catch (IOException error) {
         error.printStackTrace(System.out);
     }
-    }
-    
+}
+
     public void cargarDatos() {
     try {
         FileInputStream archivo = new FileInputStream("CursoProfesor.bin");
         ObjectInputStream lectura = new ObjectInputStream(archivo);
         
-        CursoProfesor CursoProfesorRecuperado = (CursoProfesor) lectura.readObject();
+        List<CursoProfesor> listaCursoProfesorRecuperada = (List<CursoProfesor>) lectura.readObject();
         
-        System.out.println("\ncargarDatos--> Objeto CursoProfesor leido con exito: ");
-        System.out.println(CursoProfesorRecuperado); // Esto imprimirá la información del objeto
+        System.out.println("\ncargarDatos--> Lista de CursoProfesor leida con exito:");
+        for (CursoProfesor cursoProfesor : listaCursoProfesorRecuperada) {
+            System.out.println(cursoProfesor); // Imprimir cada objeto CursoProfesor
+        }
         
         lectura.close();
     } catch (IOException | ClassNotFoundException e) {
