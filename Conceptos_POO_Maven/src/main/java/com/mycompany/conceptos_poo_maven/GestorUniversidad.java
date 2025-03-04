@@ -24,9 +24,9 @@ public class GestorUniversidad {
     private final List<CursoProfesor> cursoProfesorGestor = new ArrayList<>();
     private final List<Inscripcion> inscripcionesGestor = new ArrayList<>();
 
-    private final CursosInscritos cursosInscritos = new CursosInscritos();
-    private final InscripcionesPersona inscripcionesPersona = new InscripcionesPersona();
-    private final CursoProfesores cursoProfesores = new CursoProfesores();
+    public final CursosInscritos cursosInscritos = new CursosInscritos();
+    public final InscripcionesPersona inscripcionesPersona = new InscripcionesPersona();
+    public final CursoProfesores cursoProfesores = new CursoProfesores();
 
     public void inicializarDatosTotales() {
         inicializarDatos_Personas_Decanos();
@@ -41,7 +41,7 @@ public class GestorUniversidad {
         try (Connection conexion = ConexionBD.conectar()) {
             verificarYCorregirTablaCursosInscritos();
             verificarYCorregirTablaCursoProfesores();
-            System.out.println("\n Guardando datos en la base de datos...");
+            System.out.println("\n Guardando datos por defecto en la base de datos...");
 
             for (Persona persona : personasGestor) persona.guardarPersonaBD(conexion);
             for (Profesor profesor : profesoresGestor) profesor.guardarProfesorBD(conexion);

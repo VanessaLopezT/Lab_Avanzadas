@@ -29,15 +29,16 @@ public class Inscripcion implements Serializable {
     }
 
    public void guardarInscripcionBD(Connection conexion) throws SQLException {
+    String verificarSQL = "SELECT COUNT(*) FROM inscripcion WHERE curso_id = ? AND estudiante_id = ? AND anio = ? AND semestre = ?";
 
     // Verificar si la inscripción ya existe
-    String verificarSQL = "SELECT COUNT(*) FROM inscripciones WHERE curso_id = ? AND estudiante_id = ? AND semestre = ?";
-    String insertarSQL = "INSERT INTO inscripciones (curso_id, estudiante_id, semestre) VALUES (?, ?, ?)";
+   String insertarSQL = "INSERT INTO inscripcion (curso_id, estudiante_id, anio, semestre) VALUES (?, ?, ?, ?);";
 
     try (PreparedStatement verificarStmt = conexion.prepareStatement(verificarSQL)) {
         verificarStmt.setInt(1, this.curso.getID());
         verificarStmt.setInt(2, this.estudiante.getID());
-        verificarStmt.setInt(3, this.semestre);
+        verificarStmt.setInt(3, this.año);
+        verificarStmt.setInt(4, this.semestre);
 
         ResultSet rs = verificarStmt.executeQuery();
         if (rs.next() && rs.getInt(1) > 0) {
@@ -48,7 +49,8 @@ public class Inscripcion implements Serializable {
         try (PreparedStatement insertarStmt = conexion.prepareStatement(insertarSQL)) {
             insertarStmt.setInt(1, this.curso.getID());
             insertarStmt.setInt(2, this.estudiante.getID());
-            insertarStmt.setInt(3, this.semestre);
+            insertarStmt.setInt(3, this.año);
+            insertarStmt.setInt(4, this.semestre);
             insertarStmt.executeUpdate();
         }
     } catch (SQLException e) {

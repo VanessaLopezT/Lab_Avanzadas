@@ -3,10 +3,12 @@ com\mycompany\conceptos_poo_maven\Programa.class
 com\mycompany\conceptos_poo_maven\ConexionBD.class
 com\mycompany\conceptos_poo_maven\Facultad.class
 com\mycompany\conceptos_poo_maven\Inscripcion.class
+com\mycompany\conceptos_poo_maven\InscripcionApp.class
 com\mycompany\conceptos_poo_maven\InscripcionesPersona.class
 com\mycompany\conceptos_poo_maven\Profesor.class
 com\mycompany\conceptos_poo_maven\Curso.class
 com\mycompany\conceptos_poo_maven\Servicios.class
+inscripcionesPersona.class
 com\mycompany\conceptos_poo_maven\Conceptos_POO_Maven.class
 com\mycompany\conceptos_poo_maven\CursoProfesor.class
 com\mycompany\conceptos_poo_maven\Persona.class

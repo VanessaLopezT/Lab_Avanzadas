@@ -16,7 +16,7 @@ public class CursosInscritos implements Serializable, Servicios {
     private List<Inscripcion> listado = new ArrayList<>();
     
   public void inscribir(Inscripcion inscripcion) {
-    listado.add(inscripcion);
+    listado.add(inscripcion);   
     String sql = "INSERT INTO cursos_inscritos (inscripcion_id, estudiante_id) VALUES (?, ?)";
 
     try (Connection conexion = ConexionBD.conectar();

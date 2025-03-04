@@ -48,6 +48,7 @@ public void guardarCursoBD(Connection conexion) {
     } catch (SQLException e) {
         e.printStackTrace();
     }
+    
 }
 
 

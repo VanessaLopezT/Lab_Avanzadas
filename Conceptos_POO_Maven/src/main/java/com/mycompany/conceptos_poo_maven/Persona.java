@@ -36,6 +36,8 @@ public void guardarPersonaBD(Connection conexion) throws SQLException {
         pstmt.setString(4, this.email);
         pstmt.executeUpdate();
     }
+    
+    
 }
 
 

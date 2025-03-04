@@ -106,6 +106,119 @@ stmt.execute(sqlCursosInscritos);
     }
 }
     
+    
+     public static void mostrarDatosBD_PERSONA() {
+    try (Connection conexion = conectar()) {
+        System.out.println("\n📌 MOSTRANDO DATOS ALMACENADOS EN LA BASE DE DATOS:");
+
+        mostrarTabla(conexion, "persona");
+     
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+    
+      public static void mostrarDatosBD_FACULTAD() {
+    try (Connection conexion = conectar()) {
+        System.out.println("\n📌 MOSTRANDO DATOS ALMACENADOS EN LA BASE DE DATOS:");
+
+        mostrarTabla(conexion, "facultad");
+   
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+      
+       public static void mostrarDatosBD_PROGRAMA() {
+    try (Connection conexion = conectar()) {
+        System.out.println("\n📌 MOSTRANDO DATOS ALMACENADOS EN LA BASE DE DATOS:");
+
+        mostrarTabla(conexion, "programa");
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+       
+    public static void mostrarDatosBD_CURSO() {
+    try (Connection conexion = conectar()) {
+        System.out.println("\n📌 MOSTRANDO DATOS ALMACENADOS EN LA BASE DE DATOS:");
+   
+        mostrarTabla(conexion, "curso");
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+     public static void mostrarDatosBD_PROFESOR() {
+    try (Connection conexion = conectar()) {
+        System.out.println("\n📌 MOSTRANDO DATOS ALMACENADOS EN LA BASE DE DATOS:");
+
+        mostrarTabla(conexion, "profesor");
+ 
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+      public static void mostrarDatosBD_ESTUDIANTE() {
+    try (Connection conexion = conectar()) {
+        System.out.println("\n📌 MOSTRANDO DATOS ALMACENADOS EN LA BASE DE DATOS:");
+
+        mostrarTabla(conexion, "estudiante");
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+      
+       public static void mostrarDatosBD_CURSO_PROFESOR() {
+    try (Connection conexion = conectar()) {
+        System.out.println("\n📌 MOSTRANDO DATOS ALMACENADOS EN LA BASE DE DATOS:");
+
+        mostrarTabla(conexion, "curso_profesor");
+  
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+        public static void mostrarDatosBD_INSCRIPCION() {
+    try (Connection conexion = conectar()) {
+        System.out.println("\n📌 MOSTRANDO DATOS ALMACENADOS EN LA BASE DE DATOS:");
+
+        mostrarTabla(conexion, "inscripcion"); // Singular, no "inscripciones"
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+         public static void mostrarDatosBD_CURSOS_INSCRITOS() {
+    try (Connection conexion = conectar()) {
+        System.out.println("\n📌 MOSTRANDO DATOS ALMACENADOS EN LA BASE DE DATOS:");
+        mostrarTabla(conexion, "cursos_inscritos"); // Guion bajo en lugar de junto
+       
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+          public static void mostrarDatosBD_CURSO_PROFESORES() {
+    try (Connection conexion = conectar()) {
+        System.out.println("\n📌 MOSTRANDO DATOS ALMACENADOS EN LA BASE DE DATOS:");
+        mostrarTabla(conexion, "curso_profesores");
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+           public static void mostrarDatosBD_INSCRIPCIONES_PERSONAS() {
+    try (Connection conexion = conectar()) {
+        System.out.println("\n📌 MOSTRANDO DATOS ALMACENADOS EN LA BASE DE DATOS:");
+
+        mostrarTabla(conexion, "inscripciones_personas");// Guion bajo en lugar de junto
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+     
      public static void mostrarDatos_CursosInscritos() {
     try (Connection conexion = conectar()) {
         mostrarTabla(conexion, "cursos_inscritos"); // Guion bajo en lugar de junto
