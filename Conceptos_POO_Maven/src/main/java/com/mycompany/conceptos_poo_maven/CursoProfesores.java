@@ -104,12 +104,12 @@ public void eliminar(int profesorID, int cursoID, int anio, int semestre) {
                                    cp.getAño() == anio &&
                                    cp.getSemestre() == semestre);
 
-            System.out.println("✅ Profesor eliminado correctamente.");
+            System.out.println("Profesor eliminado correctamente.");
         } else {
-            System.out.println("⚠ No se encontró el profesor en el curso.");
+            System.out.println("No se encontró el profesor en el curso.");
         }
     } catch (SQLException e) {
-        System.err.println("❌ Error al eliminar al profesor: " + e.getMessage());
+        System.err.println("Error al eliminar al profesor: " + e.getMessage());
     }
 }
 

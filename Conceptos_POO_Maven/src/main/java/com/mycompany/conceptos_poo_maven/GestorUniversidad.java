@@ -120,13 +120,13 @@ public class GestorUniversidad {
 
         decanosGestor.add(new Persona(7392, "Juan", "Herrera", "JuanH@unillanos.edu.co"));
         decanosGestor.add(new Persona(7123, "Roberta", "Perez", "RobePerez@unillanos.edu.co"));
-        
+        personasGestor.add(decanosGestor.get(0));
+        personasGestor.add(decanosGestor.get(1));
     }
 
     public void inicializarDatos_Profesores_Estudiantes() {
         profesoresGestor.add(new Profesor(5789, "Miguel", "Ramirez", "migue.Ramirez@unillanos.edu.co", "Catedratico"));
         profesoresGestor.add(new Profesor(9176, "Angela", "Perez", "Ange.Perez@unillanos.edu.co", "Catedratico"));
-
         estudiantesGestor.add(new Estudiante(160004713, programasGestor.get(0), true, 3.7, 1123498175, "Yeimy Vanessa", "Lopez Terreros", "yeimy.lopez@unillanos.edu.co"));
         estudiantesGestor.add(new Estudiante(160004748, programasGestor.get(1), true, 3.1, 1123981625, "Maicol Sneider", "Guerrero Beltran", "Maicol.Guerrero@unillanos.edu.co"));
     }
@@ -357,14 +357,14 @@ public void OperacionesCursos_Profesores(){
 public void OperacionesInscripciones_Personas() {
     mostrarColumnasTabla("inscripciones_personas");
 
-    System.out.println("\nBuscando inscripciones_personas");
+    System.out.println("\n Buscando inscripciones_personas");
     inscripcionesPersona.buscarPersonaInscrita(1123498175);
-      System.out.println("\n💾 Guardando inscripciones en archivo binario...");
+      System.out.println("\n Guardando inscripciones en archivo binario...");
     inscripcionesPersona.guardainformacion();
 
-    System.out.println("\n📂 Cargando inscripciones desde archivo binario...");
+    System.out.println("\n Cargando inscripciones desde archivo binario...");
     inscripcionesPersona.cargarDatos();
-    System.out.println("\n➕ ANTES de agregar nueva inscripción:");
+    System.out.println("\n ANTES de agregar nueva inscripción:");
     ConexionBD.mostrarDatos_inscripcionesPersonas();
 
     // Persona que queremos inscribir
@@ -373,46 +373,46 @@ public void OperacionesInscripciones_Personas() {
 
     // 🔍 Verificar si la persona ya está en la tabla PERSONA antes de inscribirla
     if (!personaExisteEnBD(personaId)) {
-        System.out.println("\n⚠ Persona NO encontrada en la tabla PERSONA. Se añadirá primero.");
+        System.out.println("\n Persona NO encontrada en la tabla PERSONA. Se añadirá primero.");
         agregarPersonaABaseDeDatos(nuevapersona);
     } else {
-        System.out.println("\n✅ Persona ya existe en la tabla PERSONA.");
+        System.out.println("\n Persona ya existe en la tabla PERSONA.");
     }
 
     // 📌 Ahora sí, inscribir a la persona
     inscripcionesPersona.inscribir(nuevapersona);
 
-    System.out.println("\n➕ DESPUÉS de agregar nueva inscripción:");
+    System.out.println("\n DESPUÉS de agregar nueva inscripción:");
     ConexionBD.mostrarDatos_inscripcionesPersonas();
 
     // 🔄 Actualizar inscripción
     nuevapersona.setNombres("Alejandra");
-    System.out.println("\n✏ ANTES de actualizar inscripción:");
+    System.out.println("\nANTES de actualizar inscripción:");
     ConexionBD.mostrarDatos_inscripcionesPersonas();
 
     inscripcionesPersona.actualizarPersona(personaId, "Jessica", "Lorena", "JesiLoore@gmail.com");
 
-    System.out.println("\n✅ DESPUÉS de actualizar inscripción:");
+    System.out.println("\nDESPUÉS de actualizar inscripción:");
     ConexionBD.mostrarDatos_inscripcionesPersonas();
-  System.out.println("\n💾 Guardando inscripciones en archivo binario...");
+  System.out.println("\nGuardando inscripciones en archivo binario...");
     inscripcionesPersona.guardainformacion();
 
-    System.out.println("\n📂 Cargando inscripciones desde archivo binario...");
+    System.out.println("\n Cargando inscripciones desde archivo binario...");
     inscripcionesPersona.cargarDatos();
     // ❌ Eliminar inscripción
-    System.out.println("\n❌ ANTES de eliminar inscripción:");
+    System.out.println("\nANTES de eliminar inscripción:");
     ConexionBD.mostrarDatos_inscripcionesPersonas();
 
     inscripcionesPersona.eliminarPersona(personaId);
 
-    System.out.println("\n❌ DESPUÉS de eliminar inscripción:");
+    System.out.println("\nDESPUÉS de eliminar inscripción:");
     ConexionBD.mostrarDatos_inscripcionesPersonas();
 
     // 💾 Guardar y cargar datos binarios
-    System.out.println("\n💾 Guardando inscripciones en archivo binario...");
+    System.out.println("\nGuardando inscripciones en archivo binario...");
     inscripcionesPersona.guardainformacion();
 
-    System.out.println("\n📂 Cargando inscripciones desde archivo binario...");
+    System.out.println("\nCargando inscripciones desde archivo binario...");
     inscripcionesPersona.cargarDatos();
 }
 
@@ -450,11 +450,23 @@ public void agregarPersonaABaseDeDatos(Persona persona) {
         
         int filasAfectadas = stmt.executeUpdate();
         if (filasAfectadas > 0) {
-            System.out.println("✅ Persona añadida a la base de datos correctamente.");
+            System.out.println("Persona añadida a la base de datos correctamente.");
         }
     } catch (SQLException e) {
         e.printStackTrace();
     }
+}
+
+public void MostrarOperacionesLista_MostrarBinarios(){
+    
+    
+    
+    System.out.println("\nGuardando inscripcionespersonas en archivo binario...");
+    inscripcionesPersona.guardainformacion();
+
+    System.out.println("\nCargando inscripcionespersonas desde archivo binario...");
+    inscripcionesPersona.cargarDatos();
+    
 }
 
   public void mostrarOperaciones() {

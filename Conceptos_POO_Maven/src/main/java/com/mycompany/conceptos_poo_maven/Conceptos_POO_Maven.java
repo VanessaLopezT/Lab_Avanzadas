@@ -10,6 +10,7 @@ public class Conceptos_POO_Maven {
         gestor.inicializarDatosTotales();
         gestor.guardar_en_BD();
         gestor.eliminarDuplicadosBD();
+        gestor.MostrarOperacionesLista_MostrarBinarios();
         ConexionBD.mostrarDatosBD();
 
  
