@@ -6,7 +6,6 @@ package com.mycompany.conceptos_poo_maven;
 import java.io.Serializable;
 import java.util.Date;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.*;
 /**
@@ -40,8 +39,6 @@ public class Programa implements Serializable{
     }
 }
 
-
-
     @Override
 public String toString() {
     return "Programa{" +
@@ -52,7 +49,6 @@ public String toString() {
            ", facultad=" + (facultad != null ? facultad.getNombre() : "Sin Facultad") +
            '}';
 }
-
 
     public int getID() {
         return ID;

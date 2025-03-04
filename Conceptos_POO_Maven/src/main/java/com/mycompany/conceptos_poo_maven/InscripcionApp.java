@@ -38,6 +38,9 @@ private JTextArea outputArea;
         tabbedPane.addTab("Agregar Inscripcion", crearPanelInscripcion());
         tabbedPane.addTab("Asignar CursoProfesor", crearPanelCursoProfesor());
         tabbedPane.addTab("CRUD CursosInscritos", crearPanelCursosInscritos());
+        tabbedPane.addTab("CURD CursosProfesores", crearPanelCursoProfesores());
+        tabbedPane.addTab("CURD InscripcionesPersonas", crearPanelInscripcionPersona());
+        
         //tabbedPane.addTab("Profesores", crearPanelProfesores());
         //tabbedPane.addTab("Inscripciones", crearPanelInscripciones());
         //tabbedPane.addTab("Inscripciones", crearPanelInscripciones());
@@ -103,35 +106,87 @@ private void guardarPersona(JTextField idPersona, JTextField nombresPersona, JTe
     }
 }
 
-    private void guardarInscripcionPersona(JTextField idPersona, JTextField nombresPersona, JTextField apellidosPersona, JTextField emailPersona) {
-    try {
-        int idPersonaVal = Integer.parseInt(idPersona.getText());
-        String nombresVal = nombresPersona.getText();
-        String apellidosVal = apellidosPersona.getText();
-        String emailVal = emailPersona.getText();
-        
-        if (nombresVal.isEmpty() || apellidosVal.isEmpty() || emailVal.isEmpty()) {
-            mostrarError("Todos los campos deben estar completos.");
-            return;
+    private JPanel crearPanelInscripcionPersona() {
+    JPanel panel = new JPanel(new GridLayout(5, 2));
+    JTextField idPersona = new JTextField("9176");
+    JButton btnInscribir = new JButton("Inscribir Persona");
+
+    // Acción para inscribir en inscripciones_personas con validaciones
+    btnInscribir.addActionListener(e -> {
+        try {
+            int idPersonaVal = Integer.parseInt(idPersona.getText().trim());
+
+            // Validar si la persona existe en la tabla PERSONA
+            if (!existePersona(idPersonaVal)) {
+                JOptionPane.showMessageDialog(panel, "Error: La persona no está registrada en la tabla PERSONA.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            // Inscribir en inscripciones_personas
+            inscribirPersona(idPersonaVal);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(panel, "Error: El ID debe ser un número entero.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
         }
+    });
+
+    panel.add(new JLabel("ID de Persona:")); panel.add(idPersona);
+    panel.add(btnInscribir);
+    
+    return panel;
+}
+
+private boolean existePersona(int idPersona) {
+    String sql = "SELECT COUNT(*) FROM PERSONA WHERE ID = ?";
+    
+    try (Connection conexion = ConexionBD.conectar();
+         PreparedStatement stmt = conexion.prepareStatement(sql)) {
+        stmt.setInt(1, idPersona);
         
-        // Crear el objeto Persona y guardarlo
-        Persona nuevaPersona = new Persona(idPersonaVal, nombresVal, apellidosVal, emailVal);
-        InscripcionesPersona nuevainscripcionpersona=new InscripcionesPersona();
-        nuevainscripcionpersona.inscribir(nuevaPersona);
-        try (Connection conexion = ConexionBD.conectar()) {
-            nuevaPersona.guardarPersonaBD(conexion);
-            nuevainscripcionpersona.inscribir(nuevaPersona);
-            outputArea.append("InsrcipcionPersona guardada: " + idPersonaVal + "\n");
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next() && rs.getInt(1) > 0) {
+                return true;
+            }
+        }
+    } catch (SQLException e) {
+        mostrarError("Error al validar existencia en PERSONA: " + e.getMessage());
+    }
+    return false;
+}
+
+private void inscribirPersona(int idPersona) {
+    String sqlBuscar = "SELECT * FROM PERSONA WHERE ID = ?";
+    String sqlInsertar = "INSERT INTO inscripciones_personas (persona_id, nombres, apellidos, email) VALUES (?, ?, ?, ?)";
+    
+    try (Connection conexion = ConexionBD.conectar();
+         PreparedStatement stmtBuscar = conexion.prepareStatement(sqlBuscar);
+         PreparedStatement stmtInsertar = conexion.prepareStatement(sqlInsertar)) {
+        
+        // Obtener datos de la persona
+        stmtBuscar.setInt(1, idPersona);
+        ResultSet rs = stmtBuscar.executeQuery();
+        if (!rs.next()) return;
+        
+        String nombres = rs.getString("NOMBRES");
+        String apellidos = rs.getString("APELLIDOS");
+        String email = rs.getString("EMAIL");
+
+        // Insertar en inscripciones_personas
+        stmtInsertar.setInt(1, idPersona);
+        stmtInsertar.setString(2, nombres);
+        stmtInsertar.setString(3, apellidos);
+        stmtInsertar.setString(4, email);
+        
+        int filasAfectadas = stmtInsertar.executeUpdate();
+        if (filasAfectadas > 0) {
             ConexionBD.mostrarDatosBD_INSCRIPCIONES_PERSONAS();
-        } catch (SQLException e) {
-            mostrarError("Error al guardar la InsrcipcionPersona: " + e.getMessage());
+            outputArea.append("Persona Agregada a Inscripcipcion correctamente.\n");} else {
+            JOptionPane.showMessageDialog(null, "No se pudo inscribir a la persona.", "Error", JOptionPane.ERROR_MESSAGE);
         }
-    } catch (NumberFormatException ex) {
-        mostrarError("Datos inválidos. Asegúrate de ingresar valores numéricos para el ID.");
+    } catch (SQLException e) {
+        mostrarError("Error al inscribir persona: " + e.getMessage());
     }
 }
-  
+
 
 private JPanel crearPanelProfesor() {
     JPanel panel = new JPanel(new GridLayout(6, 2));
@@ -719,27 +774,27 @@ private void guardarFacultad(int idFacultad, String nombreFacultad, Persona deca
 private JPanel crearPanelCursosInscritos() {
     JPanel panel = new JPanel(new GridLayout(5, 2));
     
-    JTextField idInscripcion = new JTextField("140");
+    JTextField idCurso = new JTextField("912");
     JTextField idEstudiante = new JTextField("1123981625");
     JButton btnGuardarInscripcion = new JButton("Guardar Inscripción");
 
     // Acción para guardar inscripción en cursos_inscritos con validaciones
     btnGuardarInscripcion.addActionListener(e -> {
         try {
-            int idInscripcionVal = Integer.parseInt(idInscripcion.getText().trim());
+            int idCursoVal = Integer.parseInt(idCurso.getText().trim());
             int idEstudianteVal = Integer.parseInt(idEstudiante.getText().trim());
 
-            // Validar si la inscripción existe
-            Inscripcion inscripcion = obtenerInscripcionPorID(idInscripcionVal);
-            if (inscripcion == null) {
-                JOptionPane.showMessageDialog(panel, "Error: No existe una inscripción con ese ID.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            
             // Validar si el estudiante existe
             Estudiante estudiante = obtenerEstudiantePorID(idEstudianteVal);
             if (estudiante == null) {
                 JOptionPane.showMessageDialog(panel, "Error: No existe un estudiante con ese ID.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Buscar inscripción con ese curso y estudiante
+            Inscripcion inscripcion = obtenerInscripcionPorCursoYEstudiante(idCursoVal, idEstudianteVal);
+            if (inscripcion == null) {
+                JOptionPane.showMessageDialog(panel, "Error: No existe una inscripción para este curso y estudiante.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -750,18 +805,19 @@ private JPanel crearPanelCursosInscritos() {
         }
     });
 
-    panel.add(new JLabel("ID Inscripción(O Dejar por defecto):")); panel.add(idInscripcion);
-    panel.add(new JLabel("ID Estudiante(O Dejar por defecto):")); panel.add(idEstudiante);
+    panel.add(new JLabel("ID del Curso:")); panel.add(idCurso);
+    panel.add(new JLabel("ID del Estudiante:")); panel.add(idEstudiante);
     panel.add(btnGuardarInscripcion);
 
     return panel;
 }
 
-private Inscripcion obtenerInscripcionPorID(int idInscripcion) {
+private Inscripcion obtenerInscripcionPorCursoYEstudiante(int cursoID, int estudianteID) {
     try (Connection conexion = ConexionBD.conectar()) {
-        String sql = "SELECT * FROM inscripcion WHERE id = ?";
+        String sql = "SELECT * FROM inscripcion WHERE curso_id = ? AND estudiante_id = ?";
         try (PreparedStatement pstmt = conexion.prepareStatement(sql)) {
-            pstmt.setInt(1, idInscripcion);
+            pstmt.setInt(1, cursoID);
+            pstmt.setInt(2, estudianteID);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return new Inscripcion(
@@ -778,6 +834,7 @@ private Inscripcion obtenerInscripcionPorID(int idInscripcion) {
     }
     return null;
 }
+
 
 private void inscribirEnCursos(Inscripcion inscripcion) {
     String sql = "INSERT INTO cursos_inscritos (inscripcion_id, estudiante_id) VALUES (?, ?)";
@@ -800,6 +857,77 @@ private void inscribirEnCursos(Inscripcion inscripcion) {
     }
 }
 
+private JPanel crearPanelCursoProfesores() {
+    JPanel panel = new JPanel(new GridLayout(4, 2));
+    
+    JTextField idProfesor = new JTextField("9176");
+    JTextField idCurso = new JTextField("912");
+    JButton btnGuardarCursoProfesor = new JButton("Guardar Asignación");
+
+    // Acción para guardar asignación en curso_profesores con validaciones
+    btnGuardarCursoProfesor.addActionListener(e -> {
+        try {
+            int idProfesorVal = Integer.parseInt(idProfesor.getText().trim());
+            int idCursoVal = Integer.parseInt(idCurso.getText().trim());
+
+            // Validar si la combinación existe en curso_profesor
+            if (!existeCursoProfesor(idProfesorVal, idCursoVal)) {
+                JOptionPane.showMessageDialog(panel, "Error: No existe una asignación de este profesor a este curso en curso_profesor.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            // Guardar asignación en curso_profesores
+            inscribirCursoProfesor(idProfesorVal, idCursoVal);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(panel, "Error: Los valores deben ser números enteros.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
+        }
+    });
+
+    panel.add(new JLabel("ID Profesor (O Dejar por defecto):")); panel.add(idProfesor);
+    panel.add(new JLabel("ID Curso (O Dejar por defecto):")); panel.add(idCurso);
+    panel.add(btnGuardarCursoProfesor);
+    
+    return panel;
+}
+
+private boolean existeCursoProfesor(int idProfesor, int idCurso) {
+    String sql = "SELECT COUNT(*) FROM curso_profesor WHERE profesor_id = ? AND curso_id = ?";
+    
+    try (Connection conexion = ConexionBD.conectar();
+         PreparedStatement stmt = conexion.prepareStatement(sql)) {
+        stmt.setInt(1, idProfesor);
+        stmt.setInt(2, idCurso);
+        
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next() && rs.getInt(1) > 0) {
+                return true;
+            }
+        }
+    } catch (SQLException e) {
+        mostrarError("Error al validar asignación en curso_profesor: " + e.getMessage());
+    }
+    return false;
+}
+
+private void inscribirCursoProfesor(int idProfesor, int idCurso) {
+    String sql = "INSERT INTO curso_profesores (profesor_id, curso_id) VALUES (?, ?)";
+    
+    try (Connection conexion = ConexionBD.conectar();
+         PreparedStatement stmt = conexion.prepareStatement(sql)) {
+        stmt.setInt(1, idProfesor);
+        stmt.setInt(2, idCurso);
+        
+        int filasAfectadas = stmt.executeUpdate();
+        if (filasAfectadas > 0) {
+            ConexionBD.mostrarDatosBD_CURSO_PROFESORES();
+            outputArea.append("Profesor asignado al curso correctamente.\n");
+        } else {
+            JOptionPane.showMessageDialog(null, "No se pudo asignar al profesor.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    } catch (SQLException e) {
+        mostrarError("Error al asignar profesor al curso: " + e.getMessage());
+    }
+}
 
     private void mostrarError(String mensaje) {
         JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);

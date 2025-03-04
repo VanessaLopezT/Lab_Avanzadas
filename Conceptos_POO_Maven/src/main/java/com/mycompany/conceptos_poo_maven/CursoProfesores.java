@@ -285,10 +285,6 @@ public void actualizar(int profesorID, int cursoID, int nuevoAnio, int nuevoSeme
     }
 }
     
-    
- 
-
-
 
     @Override
     public String ImprimirPosicion(int posicion) {

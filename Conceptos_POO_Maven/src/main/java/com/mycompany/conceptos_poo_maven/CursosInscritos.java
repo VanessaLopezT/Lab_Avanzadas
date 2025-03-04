@@ -8,8 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Set;
+
 
 public class CursosInscritos implements Serializable, Servicios {
     private static final long serialVersionUID = 1L;
@@ -21,15 +20,15 @@ public class CursosInscritos implements Serializable, Servicios {
 
     try (Connection conexion = ConexionBD.conectar();
          PreparedStatement stmt = conexion.prepareStatement(sql)) {
-        stmt.setInt(1, inscripcion.getCurso().getID()); // Cambié curso_id por inscripcion_id
+        stmt.setInt(1, inscripcion.getCurso().getID()); 
         stmt.setInt(2, inscripcion.getEstudiante().getID());
 
         int filasAfectadas = stmt.executeUpdate();
         if (filasAfectadas < 0) {
-            System.out.println("⚠ No se pudo inscribir al estudiante.");
+            System.out.println("No se pudo inscribir al estudiante.");
         }
     } catch (SQLException e) {
-        System.err.println("❌ Error al inscribir al estudiante: " + e.getMessage());
+        System.err.println("Error al inscribir al estudiante: " + e.getMessage());
     }
 }
 
@@ -39,11 +38,11 @@ public class CursosInscritos implements Serializable, Servicios {
     try (Connection conexion = ConexionBD.conectar();
          PreparedStatement pstmt = conexion.prepareStatement(sql)) {
 
-        pstmt.setInt(1, inscripcion.getCurso().getID()); // Solo guarda el INSCRIPCION_ID
+        pstmt.setInt(1, inscripcion.getCurso().getID()); 
 
         pstmt.executeUpdate();
     } catch (SQLException e) {
-        System.err.println("❌ Error al guardar la inscripción: " + e.getMessage());
+        System.err.println("Error al guardar la inscripción: " + e.getMessage());
     }
 }
 
@@ -52,41 +51,24 @@ public void buscarInscripcionEnCursosInscritos(int inscripcionID, int estudiante
 
     try (Connection conexion = ConexionBD.conectar();
          PreparedStatement pstmt = conexion.prepareStatement(sql)) {
-        pstmt.setInt(1, inscripcionID);  // Aquí usamos INSCRIPCION_ID en lugar de CURSO_ID
+        pstmt.setInt(1, inscripcionID);  
         pstmt.setInt(2, estudianteID);
 
-        System.out.println("🔎 Ejecutando consulta: " + pstmt.toString());
+        System.out.println("Ejecutando consulta: " + pstmt.toString());
 
         ResultSet rs = pstmt.executeQuery();
         if (rs.next()) {
-            System.out.println("✅ Inscripción encontrada en CURSOS_INSCRITOS:");
+            System.out.println("Inscripción encontrada en CURSOS_INSCRITOS:");
             System.out.println("ID: " + rs.getInt("ID") +
                                " | INSCRIPCION_ID: " + rs.getInt("INSCRIPCION_ID") +
                                " | ESTUDIANTE_ID: " + rs.getInt("ESTUDIANTE_ID"));
         } else {
-            System.out.println("⚠ No se encontró la inscripción en CURSOS_INSCRITOS.");
+            System.out.println("No se encontró la inscripción en CURSOS_INSCRITOS.");
         }
     } catch (SQLException e) {
         e.printStackTrace();
     }
 }
-
-
-
-private Curso obtenerCursoPorID(int cursoID, Connection conexion) throws SQLException {
-    String sql = "SELECT * FROM curso WHERE id = ?;";
-    try (PreparedStatement pstmt = conexion.prepareStatement(sql)) {
-        pstmt.setInt(1, cursoID);
-        ResultSet rs = pstmt.executeQuery();
-        if (rs.next()) {
-            return new Curso(rs.getInt("id"), rs.getString("nombre"), null, rs.getBoolean("activo"));
-        }
-    }
-    return null;
-}
-
- 
-
 
 
     public void guardainformacion() {
@@ -132,7 +114,7 @@ private Curso obtenerCursoPorID(int cursoID, Connection conexion) throws SQLExce
         if (rs.next()) {
             
             int idRegistro = rs.getInt("ID");
-            System.out.println("✅ Inscripción encontrada en CURSOS_INSCRITOS:");
+            System.out.println("Inscripción encontrada en CURSOS_INSCRITOS:");
             System.out.println("ID: " + idRegistro +
                                " | INSCRIPCION_ID: " + rs.getInt("INSCRIPCION_ID") +
                                " | ESTUDIANTE_ID: " + rs.getInt("ESTUDIANTE_ID"));
@@ -142,13 +124,13 @@ private Curso obtenerCursoPorID(int cursoID, Connection conexion) throws SQLExce
 
             int filasAfectadas = pstmtEliminar.executeUpdate();
             if (filasAfectadas > 0) {
-                System.out.println("✅ Inscripción eliminada correctamente.");
+                System.out.println("Inscripción eliminada correctamente.");
             } else {
-                System.out.println("⚠ No se pudo eliminar la inscripción.");
+                System.out.println("No se pudo eliminar la inscripción.");
             }
 
         } else {
-            System.out.println("⚠ No se encontró la inscripción en CURSOS_INSCRITOS.");
+            System.out.println("No se encontró la inscripción en CURSOS_INSCRITOS.");
         }
 
     } catch (SQLException e) {
@@ -156,8 +138,6 @@ private Curso obtenerCursoPorID(int cursoID, Connection conexion) throws SQLExce
     }
 }
 
-
- 
 public void Actualizar(int inscripcionID, int estudianteID, int nuevoCursoID) {
     String sqlBuscar = "SELECT * FROM CURSOS_INSCRITOS WHERE INSCRIPCION_ID = ? AND ESTUDIANTE_ID = ?;";
     String sqlActualizar = "UPDATE CURSOS_INSCRITOS SET INSCRIPCION_ID = ? WHERE ID = ?;";
@@ -173,7 +153,7 @@ public void Actualizar(int inscripcionID, int estudianteID, int nuevoCursoID) {
 
         if (rs.next()) {
             int idRegistro = rs.getInt("ID");
-            System.out.println("✅ Inscripción encontrada en CURSOS_INSCRITOS:");
+            System.out.println("Inscripción encontrada en CURSOS_INSCRITOS:");
             System.out.println("ID: " + idRegistro +
                                " | INSCRIPCION_ID: " + rs.getInt("INSCRIPCION_ID") +
                                " | ESTUDIANTE_ID: " + rs.getInt("ESTUDIANTE_ID"));
@@ -184,49 +164,18 @@ public void Actualizar(int inscripcionID, int estudianteID, int nuevoCursoID) {
 
             int filasAfectadas = pstmtActualizar.executeUpdate();
             if (filasAfectadas > 0) {
-                System.out.println("✅ Inscripción actualizada con el nuevo curso (ID: " + nuevoCursoID + ").");
+                System.out.println("Inscripción actualizada con el nuevo curso (ID: " + nuevoCursoID + ").");
             } else {
-                System.out.println("⚠ No se pudo actualizar la inscripción.");
+                System.out.println("No se pudo actualizar la inscripción.");
             }
 
         } else {
-            System.out.println("⚠ No se encontró la inscripción en CURSOS_INSCRITOS.");
+            System.out.println("No se encontró la inscripción en CURSOS_INSCRITOS.");
         }
 
     } catch (SQLException e) {
         e.printStackTrace();
     }
-}
-
-
-
-private Estudiante obtenerEstudiantePorID(int estudianteID, Connection conexion) throws SQLException {
-    String sql = "SELECT e.id, e.activo, e.promedio, " +
-                 "p.id AS programa_id, p.nombre AS programa_nombre, " +
-                 "p.duracion, p.registro, " +
-                 "f.id AS facultad_id, f.nombre AS facultad_nombre " +
-                 "FROM estudiante e " +
-                 "JOIN programa p ON e.programa_id = p.id " +
-                 "JOIN facultad f ON p.facultad_id = f.id " +
-                 "WHERE e.id = ?;";
-
-    try (PreparedStatement pstmt = conexion.prepareStatement(sql)) {
-        pstmt.setInt(1, estudianteID);
-        ResultSet rs = pstmt.executeQuery();
-        if (rs.next()) {
-            // 🔹 Crear la facultad
-            Facultad facultad = new Facultad(rs.getInt("facultad_id"), rs.getString("facultad_nombre"), null);
-
-            // 🔹 Crear el programa con la facultad asociada
-            Programa programa = new Programa(rs.getInt("programa_id"), rs.getString("programa_nombre"),
-                                             rs.getDouble("duracion"), rs.getDate("registro"), facultad);
-
-            // 🔹 Crear y devolver el estudiante con el programa cargado
-            return new Estudiante(rs.getInt("id"), programa, rs.getBoolean("activo"), 
-                                  rs.getDouble("promedio"), rs.getInt("id"), "", "", "");
-        }
-    }
-    return null;
 }
 
 

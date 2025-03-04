@@ -45,16 +45,16 @@ public class InscripcionesPersona implements Serializable{
         int filasAfectadas = pstmtInsertar.executeUpdate();
         if (filasAfectadas > 0) {
             listado.add(persona); // Se agrega a la lista
-            System.out.println("✅ Persona inscrita correctamente.");
+            System.out.println("Persona inscrita correctamente.");
         } else {
-            System.out.println("⚠ No se pudo inscribir a la persona.");
+            System.out.println("No se pudo inscribir a la persona.");
         }
     } catch (SQLException e) {
-        System.err.println("❌ Error al inscribir a la persona: " + e.getMessage());
+        System.err.println("Error al inscribir a la persona: " + e.getMessage());
     }
 }
 
-public void buscarPersonaInscrita(int personaID) {
+    public void buscarPersonaInscrita(int personaID) {
     System.out.print("Buscando persona...");
     String sql = "SELECT * FROM INSCRIPCIONES_PERSONAS WHERE PERSONA_ID = ?;";
 
@@ -65,21 +65,21 @@ public void buscarPersonaInscrita(int personaID) {
         ResultSet rs = pstmt.executeQuery();
         
         if (rs.next()) {
-            System.out.println("✅ Persona inscrita encontrada:" +
+            System.out.println("Persona inscrita encontrada:" +
                     " | ID: " + rs.getInt("ID") +
                     " | PERSONA_ID: " + rs.getInt("PERSONA_ID") +
                     " | NOMBRES: " + rs.getString("NOMBRES") +
                     " | APELLIDOS: " + rs.getString("APELLIDOS") +
                     " | EMAIL: " + rs.getString("EMAIL"));
         } else {
-            System.out.println("⚠ No se encontró a la persona en INSCRIPCIONES_PERSONAS.");
+            System.out.println("No se encontró a la persona en INSCRIPCIONES_PERSONAS.");
         }
     } catch (SQLException e) {
-        System.err.println("❌ Error al buscar persona en INSCRIPCIONES_PERSONAS: " + e.getMessage());
+        System.err.println(" Error al buscar persona en INSCRIPCIONES_PERSONAS: " + e.getMessage());
     }
 }
 
-public void eliminarPersona(int personaID) {
+    public void eliminarPersona(int personaID) {
     String sqlBuscar = "SELECT * FROM persona WHERE ID = ?;";
     String sqlEliminar = "DELETE FROM persona WHERE ID = ?;";
 
@@ -87,13 +87,13 @@ public void eliminarPersona(int personaID) {
          PreparedStatement pstmtBuscar = conexion.prepareStatement(sqlBuscar);
          PreparedStatement pstmtEliminar = conexion.prepareStatement(sqlEliminar)) {
 
-        // 🔍 Buscar la persona en la base de datos
+        //Buscar la persona en la base de datos
         pstmtBuscar.setInt(1, personaID);
         ResultSet rs = pstmtBuscar.executeQuery();
 
         if (rs.next()) {
             int idRegistro = rs.getInt("ID");
-            System.out.println("✅ Persona encontrada en la base de datos:");
+            System.out.println("Persona encontrada en la base de datos:");
             System.out.println("ID: " + idRegistro +
                                " | NOMBRES: " + rs.getString("NOMBRES") +
                                " | APELLIDOS: " + rs.getString("APELLIDOS") +
@@ -104,17 +104,17 @@ public void eliminarPersona(int personaID) {
 
             int filasAfectadas = pstmtEliminar.executeUpdate();
             if (filasAfectadas > 0) {
-                System.out.println("✅ Persona eliminada correctamente.");
+                System.out.println("Persona eliminada correctamente.");
                 listado.removeIf(p -> p.getID() == personaID); // También la eliminamos de la lista en memoria
             } else {
-                System.out.println("⚠ No se pudo eliminar la persona.");
+                System.out.println(" No se pudo eliminar la persona.");
             }
         } else {
-            System.out.println("⚠ No se encontró la persona en la base de datos.");
+            System.out.println("No se encontró la persona en la base de datos.");
         }
 
     } catch (SQLException e) {
-        System.err.println("❌ Error al eliminar la persona: " + e.getMessage());
+        System.err.println("Error al eliminar la persona: " + e.getMessage());
     }
 }
 
@@ -127,18 +127,18 @@ public void eliminarPersona(int personaID) {
          PreparedStatement pstmtBuscar = conexion.prepareStatement(sqlBuscar);
          PreparedStatement pstmtActualizar = conexion.prepareStatement(sqlActualizar)) {
 
-        // 🔍 Buscar la persona en la tabla INSCRIPCIONES_PERSONAS
+        //Buscar la persona en la tabla INSCRIPCIONES_PERSONAS
         pstmtBuscar.setInt(1, personaID);
         ResultSet rs = pstmtBuscar.executeQuery();
 
         if (rs.next()) {
-            System.out.println("✅ Persona encontrada en INSCRIPCIONES_PERSONAS:");
+            System.out.println("Persona encontrada en INSCRIPCIONES_PERSONAS:");
             System.out.println("ID: " + rs.getInt("PERSONA_ID") +
                                " | NOMBRES: " + rs.getString("NOMBRES") +
                                " | APELLIDOS: " + rs.getString("APELLIDOS") +
                                " | EMAIL: " + rs.getString("EMAIL"));
 
-            // ✏ Actualizar los datos de la persona en la tabla
+            //Actualizar los datos de la persona en la tabla
             pstmtActualizar.setString(1, nuevoNombre);
             pstmtActualizar.setString(2, nuevoApellido);
             pstmtActualizar.setString(3, nuevoEmail);
@@ -146,12 +146,12 @@ public void eliminarPersona(int personaID) {
 
             int filasAfectadas = pstmtActualizar.executeUpdate();
             if (filasAfectadas > 0) {
-                System.out.println("✅ Datos de la persona actualizados correctamente.");
+                System.out.println("Datos de la persona actualizados correctamente.");
             } else {
-                System.out.println("⚠ No se pudo actualizar la persona.");
+                System.out.println("No se pudo actualizar la persona.");
             }
         } else {
-            System.out.println("⚠ No se encontró la persona en INSCRIPCIONES_PERSONAS.");
+            System.out.println("No se encontró la persona en INSCRIPCIONES_PERSONAS.");
         }
 
     } catch (SQLException e) {
@@ -196,10 +196,10 @@ public void eliminarPersona(int personaID) {
             listado.add(persona);
         }
 
-        System.out.println("\n🔄 Datos cargados desde la base de datos en el listado.");
+        System.out.println("\nDatos cargados desde la base de datos en el listado.");
         
     } catch (SQLException e) {
-        System.err.println("❌ Error al obtener datos de la base de datos: " + e.getMessage());
+        System.err.println("Error al obtener datos de la base de datos: " + e.getMessage());
         return; // Si hay error, no intenta guardar en el archivo
     }
 
@@ -207,7 +207,7 @@ public void eliminarPersona(int personaID) {
          ObjectOutputStream escritura = new ObjectOutputStream(archivo)) {
         
         escritura.writeObject(listado);
-        System.out.print("\n💾 guardainformacion --> Lista de Persona añadida con éxito en archivo binario.");
+        System.out.print("\nguardainformacion --> Lista de Persona añadida con éxito en archivo binario.");
         
     } catch (IOException error) {
         error.printStackTrace(System.out);
@@ -224,13 +224,13 @@ public void eliminarPersona(int personaID) {
         listado.clear();
         listado.addAll(listaRecuperada);
 
-        System.out.println("\n📂 cargarDatos --> Lista de Persona leída con éxito desde el archivo binario:");
+        System.out.println("\ncargarDatos --> Lista de Persona leída con éxito desde el archivo binario:");
         for (Persona persona : listado) {
             System.out.println(persona);
         }
 
     } catch (IOException | ClassNotFoundException e) {
-        System.out.println("❌ Error al leer el archivo:");
+        System.out.println("Error al leer el archivo:");
         e.printStackTrace();
     }
 }

@@ -4,15 +4,10 @@
  */
 package com.mycompany.conceptos_poo_maven;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.*;
 import java.io.Serializable;
 
-/**
- *
- * @author Estudiante_MCA
- */
 public class Facultad implements Serializable{
     private int ID;
     private String nombre;
@@ -25,7 +20,7 @@ public class Facultad implements Serializable{
     }
     
    public void guardarFacultadBD(Connection conexion) throws SQLException {
-    // 🔹 Modificación para evitar el error en H2
+
     String sql = "MERGE INTO facultad KEY(id) VALUES (?, ?, ?);";
     try (PreparedStatement pstmt = conexion.prepareStatement(sql)) {
         pstmt.setInt(1, this.ID);
@@ -34,8 +29,6 @@ public class Facultad implements Serializable{
         pstmt.executeUpdate();
     }
 }
-
-    
 
     @Override
     public String toString() {

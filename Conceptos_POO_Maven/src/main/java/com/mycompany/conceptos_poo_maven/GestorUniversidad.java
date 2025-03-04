@@ -9,8 +9,6 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 public class GestorUniversidad {
     // Listas de almacenamiento en memoria
@@ -79,7 +77,6 @@ public class GestorUniversidad {
         System.err.println("❌ Error al eliminar duplicados en INSCRIPCIONES_PERSONAS: " + e.getMessage());
     }
 }
-
     
     public void eliminarDuplicadosBD() {
     try (Connection conexion = ConexionBD.conectar();
@@ -114,7 +111,6 @@ public class GestorUniversidad {
         System.err.println("❌ Error al eliminar duplicados: " + e.getMessage());
     }
 }
-
 
 
     public void inicializarDatos_Personas_Decanos() {
@@ -160,7 +156,7 @@ public class GestorUniversidad {
     
     public void agregarDatosExtras() {
     if (personasGestor.isEmpty()) {
-        System.err.println("❌ Error: No hay personas registradas.");
+        System.err.println("Error: No hay personas registradas.");
         return;
     }
 
@@ -236,22 +232,21 @@ public void verificarYCorregirTablaCursoProfesores() {
         boolean existeSemestre = columnaSemestre.next();
 
         if (!existeAnio || !existeSemestre) {
-            System.out.println("⚠️ Faltan columnas en CURSO_PROFESORES. Corrigiendo...");
+            System.out.println(" Faltan columnas en CURSO_PROFESORES. Corrigiendo...");
 
             try (Statement stmt = conexion.createStatement()) {
                 if (!existeAnio) {
-                    // Agregar la columna anio permitiendo valores NULL
+                    // Agregar la columna anio
                     stmt.execute("ALTER TABLE CURSO_PROFESORES ADD COLUMN anio INT DEFAULT 2024");
                }
                 if (!existeSemestre) {
-                    // Agregar la columna semestre permitiendo valores NULL
+                    // Agregar la columna semestre 
                     stmt.execute("ALTER TABLE CURSO_PROFESORES ADD COLUMN semestre INT DEFAULT 1");
                 }
 
                 // Asegurar que todas las filas tengan valores antes de cambiar a NOT NULL
                 stmt.execute("UPDATE CURSO_PROFESORES SET anio = 2024 WHERE anio IS NULL");
                 stmt.execute("UPDATE CURSO_PROFESORES SET semestre = 1 WHERE semestre IS NULL");
-
                 // Ahora que todas las filas tienen valores, hacemos las columnas NOT NULL
                 stmt.execute("ALTER TABLE CURSO_PROFESORES ALTER COLUMN anio SET NOT NULL");
                 stmt.execute("ALTER TABLE CURSO_PROFESORES ALTER COLUMN semestre SET NOT NULL");
@@ -261,8 +256,6 @@ public void verificarYCorregirTablaCursoProfesores() {
         System.err.println("❌ Error al verificar/corregir la tabla: " + e.getMessage());
     }
 }
-
-
 
   public void mostrarColumnasTabla(String nombreTabla) {
     try (Connection conexion = ConexionBD.conectar()) {
@@ -286,36 +279,36 @@ public void OperacionesCursos_Inscritos(){
         System.out.println("\nBuscando inscripcion...");
         cursosInscritos.buscarInscripcionEnCursosInscritos(238, 1123498175);
         
-        System.out.println("\n➕ ANTES de agregar nueva inscripción:");
+        System.out.println("\nANTES de agregar nueva inscripción:");
         ConexionBD.mostrarDatos_CursosInscritos();
          Inscripcion inscripcion = new Inscripcion(cursosGestor.get(0), 2024, 1, estudiantesGestor.get(0));
-        System.out.println("\n➕ DESPUÉS de agregar nueva inscripción:");
+        System.out.println("\nDESPUÉS de agregar nueva inscripción:");
         cursosInscritos.inscribir(inscripcion);
         ConexionBD.mostrarDatos_CursosInscritos();
         
-        System.out.println("\n✏ ANTES de actualizar inscripción:");
+        System.out.println("\nANTES de actualizar inscripción:");
         ConexionBD.mostrarDatos_CursosInscritos();
 
         inscripcion.setAño(1998);
         inscripcion.setSemestre(9);
-        cursosInscritos.Actualizar(238, 1123498175, 872); // Reemplaza 999 con el nuevo ID del curso
-
-        System.out.println("\n✏ DESPUÉS de actualizar inscripción:");
+        cursosInscritos.Actualizar(238, 1123498175, 872); 
+        
+        System.out.println("\nDESPUÉS de actualizar inscripción:");
         ConexionBD.mostrarDatos_CursosInscritos();
     
-        System.out.println("\n❌ ANTES de eliminar inscripción:");
+        System.out.println("\nANTES de eliminar inscripción:");
         ConexionBD.mostrarDatos_CursosInscritos();
         cursosInscritos.Eliminar(238, 1123498175);
-        System.out.println("\n❌ DESPUÉS de eliminar inscripción:");
+        System.out.println("\nDESPUÉS de eliminar inscripción:");
         ConexionBD.mostrarDatos_CursosInscritos();
     
 
-    // 💾 Guardar datos en archivo binario
-    System.out.println("\n💾 Guardando inscripciones en archivo binario...");
+    // Guardar datos en archivo binario
+    System.out.println("\nGuardando inscripciones en archivo binario...");
     cursosInscritos.guardainformacion();
 
-    // 📂 Cargar datos desde archivo binario
-    System.out.println("\n📂 Cargando inscripciones desde archivo binario...");
+    //  Cargar datos desde archivo binario
+    System.out.println("\n Cargando inscripciones desde archivo binario...");
     cursosInscritos.cargarDatos();
  
 
@@ -327,32 +320,32 @@ public void OperacionesCursos_Profesores(){
         System.out.println("\nBuscando CursoProfesor...");
         cursoProfesores.buscarCursoProfesor(profesoresGestor.get(0).getID(),cursosGestor.get(0).getID());
         
-        System.out.println("\n➕ ANTES de agregar nueva inscripción:");
+        System.out.println("\n ANTES de agregar nueva inscripción:");
         ConexionBD.mostrarDatos_cursoProfesores();
         CursoProfesor cursoprofesor=new CursoProfesor(profesoresGestor.get(0),2005,6,cursosGestor.get(1));
         cursoProfesores.inscribir(cursoprofesor);
-       System.out.println("\n➕ DESPUÉS de agregar nueva inscripción:");
+       System.out.println("\n DESPUÉS de agregar nueva inscripción:");
        ConexionBD.mostrarDatos_cursoProfesores();
     
-        System.out.println("\n✏ ANTES de actualizar inscripción:");
+        System.out.println("\n ANTES de actualizar inscripción:");
         ConexionBD.mostrarDatos_cursoProfesores();
         
-        cursoProfesores.actualizar(5789, 238, 2009, 4); // Reemplaza con IDs correctos
-        System.out.println("\n✅ DESPUÉS de actualizar Profesor-Curso:");
+        cursoProfesores.actualizar(5789, 238, 2009, 4);
+        System.out.println("\n DESPUÉS de actualizar Profesor-Curso:");
         ConexionBD.mostrarDatos_cursoProfesores();
 
-        System.out.println("\n❌ ANTES de eliminar inscripción:");
+        System.out.println("\n ANTES de eliminar inscripción:");
         ConexionBD.mostrarDatos_cursoProfesores();
   
-        System.out.println("\n❌ DESPUÉS de eliminar inscripción:");
+        System.out.println("\n DESPUÉS de eliminar inscripción:");
         cursoProfesores.eliminar(5789, 238, 2009, 4);
         ConexionBD.mostrarDatos_cursoProfesores();
-    // 💾 Guardar datos en archivo binario
-    System.out.println("\n💾 Guardando inscripciones en archivo binario...");
+    //  Guardar datos en archivo binario
+    System.out.println("\n Guardando inscripciones en archivo binario...");
     cursoProfesores.guardainformacion();
 
-    // 📂 Cargar datos desde archivo binario
-    System.out.println("\n📂 Cargando inscripciones desde archivo binario...");
+    //  Cargar datos desde archivo binario
+    System.out.println("\n Cargando inscripciones desde archivo binario...");
     cursoProfesores.cargarDatos();
 
    
@@ -464,22 +457,13 @@ public void agregarPersonaABaseDeDatos(Persona persona) {
     }
 }
 
-
   public void mostrarOperaciones() {
      eliminarDuplicadosBD();
      eliminarDuplicadosInscripcionPersonas();
      OperacionesCursos_Profesores();
      OperacionesInscripciones_Personas();
      OperacionesCursos_Profesores();
-    
-
- 
-    
-        
+       
 }
-
-
-
-   
-    
+     
 }

@@ -6,7 +6,6 @@ package com.mycompany.conceptos_poo_maven;
 
 import java.io.Serializable;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.*;
 /**
@@ -32,7 +31,7 @@ public void guardarCursoBD(Connection conexion) {
         System.out.println("❌ Error: La conexión a la base de datos es nula.");
         return;
     }
-
+    
     String sql = "MERGE INTO curso AS c " +
                  "USING (VALUES (?, ?, ?, ?)) AS vals (id, nombre, programa_id, activo) " +
                  "ON c.id = vals.id " +
@@ -52,14 +51,10 @@ public void guardarCursoBD(Connection conexion) {
 }
 
 
-
-
-
     @Override
     public String toString() {
         return "Curso{" + "ID=" + ID + ", NombreCurso=" + NombreCurso + ", programa=" + programa + ", activo=" + activo + '}';
     }
-
 
     public Integer getID() {
         return ID;

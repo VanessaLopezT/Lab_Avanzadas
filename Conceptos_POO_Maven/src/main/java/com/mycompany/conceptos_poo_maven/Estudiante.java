@@ -4,7 +4,6 @@
  */
 package com.mycompany.conceptos_poo_maven;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.*; 
 /**
@@ -82,35 +81,36 @@ public void guardarEstudianteBD(Connection conexion) throws SQLException {
     public void setPromedio(double promedio) {
         this.promedio = promedio;
     }
-
+     @Override
     public int getID() {
         return ID;
     }
-
+     @Override
     public void setID(int ID) {
         this.ID = ID;
     }
-
+     @Override
     public String getNombres() {
         return nombres;
     }
-
+     @Override
     public void setNombres(String nombres) {
         this.nombres = nombres;
     }
-
+     @Override
     public String getApellidos() {
         return apellidos;
     }
-
+     @Override
     public void setApellidos(String apellidos) {
         this.apellidos = apellidos;
     }
-
+    @Override
     public String getEmail() {
         return email;
     }
 
+    @Override
     public void setEmail(String email) {
         this.email = email;
     }

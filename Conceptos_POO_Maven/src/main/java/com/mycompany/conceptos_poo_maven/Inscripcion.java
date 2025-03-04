@@ -5,12 +5,10 @@
 package com.mycompany.conceptos_poo_maven;
 import java.io.Serializable;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.*;    
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
+
 /**
  *
  * @author Estudiante_MCA
@@ -54,7 +52,7 @@ public class Inscripcion implements Serializable {
             insertarStmt.executeUpdate();
         }
     } catch (SQLException e) {
-        System.err.println("❌ Error en guardarInscripcionBD: " + e.getMessage());
+        System.err.println("Error en guardarInscripcionBD: " + e.getMessage());
     }
 }
 

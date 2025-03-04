@@ -5,7 +5,6 @@
 package com.mycompany.conceptos_poo_maven;
 import java.io.Serializable;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.*; 
 /**
@@ -48,8 +47,6 @@ public void guardarCursoProfesorBD(Connection conexion) {
         e.printStackTrace();
     }
 }
-
-
 
     @Override
     public String toString() {

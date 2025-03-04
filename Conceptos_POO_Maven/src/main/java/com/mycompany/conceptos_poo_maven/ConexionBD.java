@@ -16,22 +16,21 @@ public class ConexionBD {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
-    
-    
    public static void crearTablas() {
     try (Connection conexion = conectar(); Statement stmt = conexion.createStatement()) {
         String sqlPersona = "CREATE TABLE IF NOT EXISTS persona (" +
                 "id INT PRIMARY KEY, nombres VARCHAR(255), apellidos VARCHAR(255), email VARCHAR(255));";
         stmt.execute(sqlPersona);
-// Crear la tabla 'inscripciones_persona'
-String sqlInscripcionPersona = "CREATE TABLE IF NOT EXISTS inscripciones_personas (" +
+
+        
+        String sqlInscripcionPersona = "CREATE TABLE IF NOT EXISTS inscripciones_personas (" +
         "id INT PRIMARY KEY AUTO_INCREMENT, " +
         "persona_id INT, " +
         "nombres VARCHAR(255), " +
         "apellidos VARCHAR(255), " +
         "email VARCHAR(255), " +
         "FOREIGN KEY (persona_id) REFERENCES persona(id) ON DELETE CASCADE ON UPDATE CASCADE);";
-stmt.execute(sqlInscripcionPersona);
+        stmt.execute(sqlInscripcionPersona);
 
         String sqlFacultad = "CREATE TABLE IF NOT EXISTS facultad (" +
                 "id INT PRIMARY KEY, nombre VARCHAR(255), decano_id INT, " +
@@ -54,10 +53,8 @@ stmt.execute(sqlInscripcionPersona);
                 "FOREIGN KEY (programa_id) REFERENCES programa(id));";
         stmt.execute(sqlEstudiante);
 
-// Tabla curso_profesores corregida
-// Tabla curso_profesores corregida
-// 🔹 Crear tabla curso_profesores con año y semestre
-String sqlCursoProfesores = "CREATE TABLE IF NOT EXISTS curso_profesores (" +
+        
+        String sqlCursoProfesores = "CREATE TABLE IF NOT EXISTS curso_profesores (" +
         "id INT AUTO_INCREMENT PRIMARY KEY, " + 
         "profesor_id INT, " +
         "curso_id INT, " +
@@ -68,23 +65,21 @@ String sqlCursoProfesores = "CREATE TABLE IF NOT EXISTS curso_profesores (" +
         "UNIQUE (profesor_id, curso_id, anio, semestre)" + // Evita duplicados en un mismo año y semestre
         ");";
 
-stmt.execute(sqlCursoProfesores);
+        stmt.execute(sqlCursoProfesores);
 
-
-String sqlCursosInscritos = "CREATE TABLE IF NOT EXISTS cursos_inscritos (" +
+        String sqlCursosInscritos = "CREATE TABLE IF NOT EXISTS cursos_inscritos (" +
         "id INT AUTO_INCREMENT PRIMARY KEY, " +
         "inscripcion_id INT NOT NULL, " +  // Inscripción del curso
         "estudiante_id INT NOT NULL, " +  // ID del estudiante que se inscribe
         "FOREIGN KEY (inscripcion_id) REFERENCES curso(id) ON DELETE CASCADE, " +
         "FOREIGN KEY (estudiante_id) REFERENCES estudiante(id) ON DELETE CASCADE);";
-stmt.execute(sqlCursosInscritos);
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-}
+        stmt.execute(sqlCursosInscritos);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                }
+          }
 
 
-    
     public static void mostrarDatosBD() {
     try (Connection conexion = conectar()) {
         System.out.println("\n📌 MOSTRANDO DATOS ALMACENADOS EN LA BASE DE DATOS:");
@@ -105,8 +100,7 @@ stmt.execute(sqlCursosInscritos);
         e.printStackTrace();
     }
 }
-    
-    
+
      public static void mostrarDatosBD_PERSONA() {
     try (Connection conexion = conectar()) {
         System.out.println("\n📌 MOSTRANDO DATOS ALMACENADOS EN LA BASE DE DATOS:");
@@ -243,9 +237,7 @@ stmt.execute(sqlCursosInscritos);
     } catch (SQLException e) {
         e.printStackTrace();
     }
-}
-    
-    
+} 
 
     private static void mostrarTabla(Connection conexion, String nombreTabla) {
         System.out.println("\n🔹 TABLA: " + nombreTabla.toUpperCase());
@@ -265,8 +257,6 @@ stmt.execute(sqlCursosInscritos);
         }
     }
     
-    
-    // 🔹 Comprobar si una Persona ya existe
     public static boolean existePersona(int personaID) {
         String sql = "SELECT COUNT(*) FROM persona WHERE id = ?;";
         try (Connection conexion = conectar();
@@ -280,7 +270,6 @@ stmt.execute(sqlCursosInscritos);
         return false;
     }
 
-    // 🔹 Comprobar si una Facultad ya existe
     public static boolean existeFacultad(int facultadID) {
         String sql = "SELECT COUNT(*) FROM facultad WHERE id = ?;";
         try (Connection conexion = conectar();
@@ -294,7 +283,6 @@ stmt.execute(sqlCursosInscritos);
         return false;
     }
 
-    // 🔹 Comprobar si un Programa ya existe
     public static boolean existePrograma(int programaID) {
         String sql = "SELECT COUNT(*) FROM programa WHERE id = ?;";
         try (Connection conexion = conectar();
@@ -322,7 +310,6 @@ stmt.execute(sqlCursosInscritos);
     }
 }
 
-    // 🔹 Comprobar si un Curso ya existe
     public static boolean existeCurso(int cursoID) {
         String sql = "SELECT COUNT(*) FROM curso WHERE id = ?;";
         try (Connection conexion = conectar();
@@ -336,7 +323,6 @@ stmt.execute(sqlCursosInscritos);
         return false;
     }
 
-    // 🔹 Comprobar si un Profesor ya existe
     public static boolean existeProfesor(int profesorID) {
         String sql = "SELECT COUNT(*) FROM profesor WHERE id = ?;";
         try (Connection conexion = conectar();
@@ -350,7 +336,6 @@ stmt.execute(sqlCursosInscritos);
         return false;
     }
 
-    // 🔹 Comprobar si un Estudiante ya existe
     public static boolean existeEstudiante(int estudianteID) {
         String sql = "SELECT COUNT(*) FROM estudiante WHERE id = ?;";
         try (Connection conexion = conectar();
@@ -364,9 +349,6 @@ stmt.execute(sqlCursosInscritos);
         return false;
     }
 
-    
-
-    // 🔹 Comprobar si un CursoProfesor ya existe
     public static boolean existeCursoProfesor(int profesorID, int cursoID) {
         String sql = "SELECT COUNT(*) FROM curso_profesor WHERE profesor_id = ? AND curso_id = ?;";
         try (Connection conexion = conectar();

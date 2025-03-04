@@ -16,6 +16,7 @@ public class Conceptos_POO_Maven {
         SwingUtilities.invokeLater(() -> {
         InscripcionApp app = new InscripcionApp();
         app.setVisible(true); // Esto hace que la ventana sea visible
+        gestor.guardar_en_BD();
 });
 
     
