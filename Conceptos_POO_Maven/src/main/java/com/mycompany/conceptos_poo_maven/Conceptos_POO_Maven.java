@@ -1,12 +1,15 @@
 package com.mycompany.conceptos_poo_maven;
 
+import servicios.UniversidadManager;
+import interfaz.InscripcionApp;
+import BaseDatos.ConexionBD;
 import javax.swing.SwingUtilities;
 
 public class Conceptos_POO_Maven {
     public static void main(String[] args) {
 
         ConexionBD.crearTablas();
-        GestorUniversidad gestor = new GestorUniversidad();
+        UniversidadManager gestor = new UniversidadManager();
         gestor.inicializarDatosTotales();
         gestor.guardar_en_BD();
         gestor.eliminarDuplicadosBD();
