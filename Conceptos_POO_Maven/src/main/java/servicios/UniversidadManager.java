@@ -12,6 +12,8 @@ import modelo.Curso;
 import DAO.CursoDAO;
 import DAO.CursoProfesorDAO;
 import DAO.CursoProfesoresDAO;
+import DAO.CursosInscritosDAO;
+import DAO.DAOFactory;
 import DAO.EstudianteDAO;
 import DAO.FacultadDAO;
 import DAO.InscripcionDAO;
@@ -48,6 +50,8 @@ public class UniversidadManager {
     public final InscripcionesPersona inscripcionesPersona = new InscripcionesPersona();
     public final CursoProfesores cursoProfesores = new CursoProfesores();
     CursoProfesoresDAO cursoProfesoresDAO=new CursoProfesoresDAO();
+    CursosInscritosDAO cursosInscritosDAO=new CursosInscritosDAO(); 
+    InscripcionesPersonaDAO inscripcionesPersonaDAO=new InscripcionesPersonaDAO();
     public void inicializarDatosTotales() {
         inicializarDatos_Personas_Decanos();
         inicializarDatos_Facultad_Programa();
@@ -153,44 +157,45 @@ public class UniversidadManager {
 
 
     public void inicializarDatos_Personas_Decanos() {
-        personasGestor.add(new Persona(1123498175, "Vanessa", "Lopez", "yeimy@gmail.com"));
-        personasGestor.add(new Persona(1123401852, "Johan", "Fabio", "AndreFa@gmail.com"));
-        personasGestor.add(new Persona(1123401852, "Johan", "Hernandez", "johanhernandez@gmail.com"));
+        
+        personasGestor.add(DAOFactory.crearPersona(1123498175, "Vanessa", "Lopez", "yeimy@gmail.com"));
+        personasGestor.add(DAOFactory.crearPersona(1123401852, "Johan", "Fabio", "AndreFa@gmail.com"));
+        personasGestor.add(DAOFactory.crearPersona(1123401852, "Johan", "Hernandez", "johanhernandez@gmail.com"));
 
-        decanosGestor.add(new Persona(7392, "Juan", "Herrera", "JuanH@unillanos.edu.co"));
-        decanosGestor.add(new Persona(7123, "Roberta", "Perez", "RobePerez@unillanos.edu.co"));
+        decanosGestor.add(DAOFactory.crearPersona(7392, "Juan", "Herrera", "JuanH@unillanos.edu.co"));
+        decanosGestor.add(DAOFactory.crearPersona(7123, "Roberta", "Perez", "RobePerez@unillanos.edu.co"));
         personasGestor.add(decanosGestor.get(0));
         personasGestor.add(decanosGestor.get(1));
     }
 
     public void inicializarDatos_Profesores_Estudiantes() {
-        profesoresGestor.add(new Profesor(5789, "Miguel", "Ramirez", "migue.Ramirez@unillanos.edu.co", "Catedratico"));
-        profesoresGestor.add(new Profesor(9176, "Angela", "Perez", "Ange.Perez@unillanos.edu.co", "Catedratico"));
-        estudiantesGestor.add(new Estudiante(160004713, programasGestor.get(0), true, 3.7, 1123498175, "Yeimy Vanessa", "Lopez Terreros", "yeimy.lopez@unillanos.edu.co"));
-        estudiantesGestor.add(new Estudiante(160004748, programasGestor.get(1), true, 3.1, 1123981625, "Maicol Sneider", "Guerrero Beltran", "Maicol.Guerrero@unillanos.edu.co"));
+        profesoresGestor.add(DAOFactory.crearProfesor(5789, "Miguel", "Ramirez", "migue.Ramirez@unillanos.edu.co", "Catedratico"));
+        profesoresGestor.add(DAOFactory.crearProfesor(9176, "Angela", "Perez", "Ange.Perez@unillanos.edu.co", "Catedratico"));
+        estudiantesGestor.add(DAOFactory.crearEstudiante(160004713, programasGestor.get(0), true, 3.7, 1123498175, "Yeimy Vanessa", "Lopez Terreros", "yeimy.lopez@unillanos.edu.co"));
+        estudiantesGestor.add(DAOFactory.crearEstudiante(160004748, programasGestor.get(1), true, 3.1, 1123981625, "Maicol Sneider", "Guerrero Beltran", "Maicol.Guerrero@unillanos.edu.co"));
     }
 
     public void inicializarDatos_Facultad_Programa() {
-        facultadesGestor.add(new Facultad(1234, "Facultad de ciencias basicas e ingenieria", decanosGestor.get(0)));
-        facultadesGestor.add(new Facultad(5678, "Facultad de licienciatura", decanosGestor.get(1)));
+        facultadesGestor.add(DAOFactory.crearFacultad(1234, "Facultad de ciencias basicas e ingenieria", decanosGestor.get(0)));
+        facultadesGestor.add(DAOFactory.crearFacultad(5678, "Facultad de licienciatura", decanosGestor.get(1)));
 
-        programasGestor.add(new Programa(603, "Ingenieria de sistemas", 10, new Date(116, 5, 3), facultadesGestor.get(0)));
-        programasGestor.add(new Programa(601, "Licienciatura en matematicas", 10, new Date(123, 2, 5), facultadesGestor.get(1)));
+        programasGestor.add(DAOFactory.crearPrograma(603, "Ingenieria de sistemas", 10, new Date(116, 5, 3), facultadesGestor.get(0)));
+        programasGestor.add(DAOFactory.crearPrograma(601, "Licienciatura en matematicas", 10, new Date(123, 2, 5), facultadesGestor.get(1)));
     }
 
     public void inicializarDatos_Cursos_CursosProfesores() {
-        cursosGestor.add(new Curso(238, "Etica", programasGestor.get(0), true));
-        cursosGestor.add(new Curso(912, "Algoritmia", programasGestor.get(1), true));
-        cursosGestor.add(new Curso(872, "Ciencias", programasGestor.get(1), true));
+        cursosGestor.add(DAOFactory.crearCurso(238, "Etica", programasGestor.get(0), true));
+        cursosGestor.add(DAOFactory.crearCurso(912, "Algoritmia", programasGestor.get(1), true));
+        cursosGestor.add(DAOFactory.crearCurso(872, "Ciencias", programasGestor.get(1), true));
 
-        cursoProfesorGestor.add(new CursoProfesor(profesoresGestor.get(0), 2025, 7, cursosGestor.get(0)));
-        cursoProfesorGestor.add(new CursoProfesor(profesoresGestor.get(1), 2025, 5, cursosGestor.get(1)));
+        cursoProfesorGestor.add(DAOFactory.crearCursoProfesor(profesoresGestor.get(0), 2025, 7, cursosGestor.get(0)));
+        cursoProfesorGestor.add(DAOFactory.crearCursoProfesor(profesoresGestor.get(1), 2025, 5, cursosGestor.get(1)));
     }
 
     public void inicializarDatos_Inscripciones() {
-        inscripcionesGestor.add(new Inscripcion(cursosGestor.get(0), 2022, 3, estudiantesGestor.get(0)));
-        inscripcionesGestor.add(new Inscripcion(cursosGestor.get(1), 2021, 4, estudiantesGestor.get(1)));
-        inscripcionesGestor.add(new Inscripcion(cursosGestor.get(2), 2023, 5, estudiantesGestor.get(1)));
+        inscripcionesGestor.add(DAOFactory.crearInscripcion(cursosGestor.get(0), 2022, 3, estudiantesGestor.get(0)));
+        inscripcionesGestor.add(DAOFactory.crearInscripcion(cursosGestor.get(1), 2021, 4, estudiantesGestor.get(1)));
+        inscripcionesGestor.add(DAOFactory.crearInscripcion(cursosGestor.get(2), 2023, 5, estudiantesGestor.get(1)));
     }
     
     public void agregarDatosExtras() {
@@ -207,10 +212,10 @@ public class UniversidadManager {
     // Verifica que existan estudiantes antes de inscribirlos
     if (!estudiantesGestor.isEmpty() && !cursosGestor.isEmpty()) {
         if (estudiantesGestor.size() > 0 && cursosGestor.size() > 0) {
-            cursosInscritos.inscribir(new Inscripcion(cursosGestor.get(0), 2024, 1, estudiantesGestor.get(0)));
+            cursosInscritosDAO.inscribir(DAOFactory.crearInscripcion(cursosGestor.get(0), 2024, 1, estudiantesGestor.get(0)));
         }
         if (estudiantesGestor.size() > 1 && cursosGestor.size() > 1) {
-            cursosInscritos.inscribir(new Inscripcion(cursosGestor.get(1), 2024, 2, estudiantesGestor.get(1)));
+            cursosInscritosDAO.inscribir(DAOFactory.crearInscripcion(cursosGestor.get(1), 2024, 2, estudiantesGestor.get(1)));
         }
     } else {
         System.err.println("❌ Error: No hay estudiantes o cursos en la lista.");
@@ -220,10 +225,10 @@ public class UniversidadManager {
     if (!profesoresGestor.isEmpty() && !cursosGestor.isEmpty()) {
         if (profesoresGestor.size() > 0 && cursosGestor.size() > 0) {
             
-            cursoProfesoresDAO.inscribir(new CursoProfesor(profesoresGestor.get(0), 2024, 1, cursosGestor.get(0)));
+            cursoProfesoresDAO.inscribir(DAOFactory.crearCursoProfesor(profesoresGestor.get(0), 2024, 1, cursosGestor.get(0)));
         }
         if (profesoresGestor.size() > 1 && cursosGestor.size() > 1) {
-            cursoProfesoresDAO.inscribir(new CursoProfesor(profesoresGestor.get(1), 2024, 2, cursosGestor.get(1)));
+            cursoProfesoresDAO.inscribir(DAOFactory.crearCursoProfesor(profesoresGestor.get(1), 2024, 2, cursosGestor.get(1)));
         }
     } else {
         System.err.println("❌ Error: No hay profesores o cursos en la lista.");
@@ -318,13 +323,13 @@ public void verificarYCorregirTablaCursoProfesores() {
 public void OperacionesCursos_Inscritos(){
     
         System.out.println("\nBuscando inscripcion...");
-        cursosInscritos.buscarInscripcionEnCursosInscritos(238, 1123498175);
+        cursosInscritosDAO.buscarInscripcionEnCursosInscritos(238, 1123498175);
         
         System.out.println("\nANTES de agregar nueva inscripción:");
         ConexionBD.mostrarDatos_CursosInscritos();
-         Inscripcion inscripcion = new Inscripcion(cursosGestor.get(0), 2024, 1, estudiantesGestor.get(0));
+         Inscripcion inscripcion = DAOFactory.crearInscripcion(cursosGestor.get(0), 2024, 1, estudiantesGestor.get(0));
         System.out.println("\nDESPUÉS de agregar nueva inscripción:");
-        cursosInscritos.inscribir(inscripcion);
+        cursosInscritosDAO.inscribir(inscripcion);
         ConexionBD.mostrarDatos_CursosInscritos();
         
         System.out.println("\nANTES de actualizar inscripción:");
@@ -332,14 +337,14 @@ public void OperacionesCursos_Inscritos(){
 
         inscripcion.setAño(1998);
         inscripcion.setSemestre(9);
-        cursosInscritos.Actualizar(238, 1123498175, 872); 
+        cursosInscritosDAO.Actualizar(238, 1123498175, 872); 
         
         System.out.println("\nDESPUÉS de actualizar inscripción:");
         ConexionBD.mostrarDatos_CursosInscritos();
     
         System.out.println("\nANTES de eliminar inscripción:");
         ConexionBD.mostrarDatos_CursosInscritos();
-        cursosInscritos.Eliminar(238, 1123498175);
+        cursosInscritosDAO.Eliminar(238, 1123498175);
         System.out.println("\nDESPUÉS de eliminar inscripción:");
         ConexionBD.mostrarDatos_CursosInscritos();
     
@@ -363,7 +368,7 @@ public void OperacionesCursos_Profesores(){
         
         System.out.println("\n ANTES de agregar nueva inscripción:");
         ConexionBD.mostrarDatos_cursoProfesores();
-        CursoProfesor cursoprofesor=new CursoProfesor(profesoresGestor.get(0),2005,6,cursosGestor.get(1));
+        CursoProfesor cursoprofesor=DAOFactory.crearCursoProfesor(profesoresGestor.get(0),2005,6,cursosGestor.get(1));
         cursoProfesoresDAO.inscribir(cursoprofesor);
        System.out.println("\n DESPUÉS de agregar nueva inscripción:");
        ConexionBD.mostrarDatos_cursoProfesores();
@@ -400,16 +405,16 @@ public void OperacionesInscripciones_Personas() {
     System.out.println("\n Buscando inscripciones_personas");
     inscripcionesPersona.buscarPersonaInscrita(1123498175);
       System.out.println("\n Guardando inscripciones en archivo binario...");
-     inscripcionesPersona.guardarEnArchivo();
+     inscripcionesPersonaDAO.guardarEnArchivo();
 
     System.out.println("\n Cargando inscripciones desde archivo binario...");
-    inscripcionesPersona.cargarDesdeArchivo();
+    inscripcionesPersonaDAO.cargarDesdeArchivo();
     System.out.println("\n ANTES de agregar nueva inscripción:");
     ConexionBD.mostrarDatos_inscripcionesPersonas();
 
     // Persona que queremos inscribir
     int personaId = 873123233;
-    Persona nuevapersona = new Persona(personaId, "Helena", "Suarez", "HeleSua@gmail.com");
+    Persona nuevapersona = DAOFactory.crearPersona(personaId, "Helena", "Suarez", "HeleSua@gmail.com");
 
     // 🔍 Verificar si la persona ya está en la tabla PERSONA antes de inscribirla
     if (!personaExisteEnBD(personaId)) {
@@ -435,10 +440,10 @@ public void OperacionesInscripciones_Personas() {
     System.out.println("\nDESPUÉS de actualizar inscripción:");
     ConexionBD.mostrarDatos_inscripcionesPersonas();
   System.out.println("\nGuardando inscripciones en archivo binario...");
-    inscripcionesPersona.guardarEnArchivo();
+    inscripcionesPersonaDAO.guardarEnArchivo();
 
     System.out.println("\n Cargando inscripciones desde archivo binario...");
-    inscripcionesPersona.cargarDesdeArchivo();
+    inscripcionesPersonaDAO.cargarDesdeArchivo();
     // ❌ Eliminar inscripción
     System.out.println("\nANTES de eliminar inscripción:");
     ConexionBD.mostrarDatos_inscripcionesPersonas();
@@ -450,10 +455,10 @@ public void OperacionesInscripciones_Personas() {
 
     // 💾 Guardar y cargar datos binarios
     System.out.println("\nGuardando inscripciones en archivo binario...");
-    inscripcionesPersona.guardarEnArchivo();
+    inscripcionesPersonaDAO.guardarEnArchivo();
 
     System.out.println("\nCargando inscripciones desde archivo binario...");
-    inscripcionesPersona.cargarDesdeArchivo();
+    inscripcionesPersonaDAO.cargarDesdeArchivo();
 }
 
 
@@ -497,15 +502,12 @@ public void agregarPersonaABaseDeDatos(Persona persona) {
     }
 }
 
-public void MostrarOperacionesLista_MostrarBinarios(){
-    
-    
-    
+public void MostrarOperacionesLista_MostrarBinarios(){ 
     System.out.println("\nGuardando inscripcionespersonas en archivo binario...");
-    inscripcionesPersona.guardarEnArchivo();
+    inscripcionesPersonaDAO.guardarEnArchivo();
 
     System.out.println("\nCargando inscripcionespersonas desde archivo binario...");
-    inscripcionesPersona.cargarDesdeArchivo();
+    inscripcionesPersonaDAO.cargarDesdeArchivo();
     
 }
 

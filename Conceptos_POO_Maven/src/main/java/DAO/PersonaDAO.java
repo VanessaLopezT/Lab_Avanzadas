@@ -29,7 +29,24 @@ public void guardarPersonaBD(Connection conexion, Persona persona) throws SQLExc
         pstmt.setString(4, persona.getEmail());
         pstmt.executeUpdate();
     }
-    
+}
+    public Persona obtenerPersonaPorID(int idPersona) throws SQLException {
+        String sql = "SELECT * FROM persona WHERE id = ?";
+        
+        try (PreparedStatement pstmt = conexion.prepareStatement(sql)) {
+            pstmt.setInt(1, idPersona);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return DAOFactory.crearPersona(
+                        rs.getInt("id"),
+                        rs.getString("nombres"),
+                        rs.getString("apellidos"),
+                        rs.getString("email")
+                    );
+                }
+            }
+        }
+        return null; // Retorna null si la persona no existe
     
 }
 }

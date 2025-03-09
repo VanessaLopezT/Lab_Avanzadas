@@ -4,16 +4,15 @@
  */
 package modelo;
 import BaseDatos.ConexionBD;
-import modelo.Persona;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.*;
 import java.io.Serializable;
+import DAO.InscripcionesPersonaDAO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import DAO.InscripcionesPersonaDAO;
     
 /**
  *
@@ -53,31 +52,11 @@ public class InscripcionesPersona implements Serializable{
     }
 
     public void cargarDesdeBD() {
-        listado.clear();
         listado.addAll(dao.obtenerTodasLasInscripciones());
         System.out.println("Datos cargados desde la BD.");
     }
 
-    public void guardarEnArchivo() {
-        try (FileOutputStream archivo = new FileOutputStream("personas.bin");
-             ObjectOutputStream escritura = new ObjectOutputStream(archivo)) {
-            escritura.writeObject(listado);
-            System.out.println("Datos guardados en archivo.");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
-    public void cargarDesdeArchivo() {
-        try (FileInputStream archivo = new FileInputStream("personas.bin");
-             ObjectInputStream lectura = new ObjectInputStream(archivo)) {
-            List<Persona> listaRecuperada = (List<Persona>) lectura.readObject();
-            listado.clear();
-            listado.addAll(listaRecuperada);
-            System.out.println("Datos cargados desde archivo.");
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-    
+   
+   
 }

@@ -8,13 +8,18 @@ import java.sql.ResultSet;
 
 
 public class ConexionBD {
+    private static ConexionBD instancia;
+    private Connection conexion;
     private static final String URL = "jdbc:h2:./database/UniversidadDB"; 
     private static final String USER = "sa"; 
     private static final String PASSWORD = ""; 
-
+    
+    
     public static Connection conectar() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
+    
+    
 
    public static void crearTablas() {
     try (Connection conexion = conectar(); Statement stmt = conexion.createStatement()) {

@@ -3,6 +3,8 @@ C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\com\m
 C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\DAO\CursoDAO.java
 C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\DAO\CursoProfesorDAO.java
 C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\DAO\CursoProfesoresDAO.java
+C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\DAO\CursosInscritosDAO.java
+C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\DAO\DAOFactory.java
 C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\DAO\EstudianteDAO.java
 C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\DAO\FacultadDAO.java
 C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\DAO\InscripcionDAO.java
@@ -22,5 +24,11 @@ C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\model
 C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\modelo\Persona.java
 C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\modelo\Profesor.java
 C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\modelo\Programa.java
+C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\servicios\EstudianteService.java
+C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\servicios\FacultadService.java
+C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\servicios\InscripcionService.java
+C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\servicios\PersonaService.java
+C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\servicios\ProfesorService.java
+C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\servicios\ProgramaService.java
 C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\servicios\Servicios.java
 C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\servicios\UniversidadManager.java

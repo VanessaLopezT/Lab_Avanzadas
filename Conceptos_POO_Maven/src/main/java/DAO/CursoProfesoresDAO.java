@@ -27,7 +27,7 @@ public class CursoProfesoresDAO {
       
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                return new CursoProfesor(
+                return DAOFactory.crearCursoProfesor(
                     obtenerProfesorPorID(profesorID, conexion),
                     rs.getInt("anio"),
                     rs.getInt("semestre"),
@@ -124,7 +124,7 @@ public class CursoProfesoresDAO {
                 Curso curso = obtenerCursoPorID(cursoID, conexion);
 
                 if (profesor != null && curso != null) {
-                    listado.add(new CursoProfesor(profesor, anio, semestre, curso));
+                    listado.add(DAOFactory.crearCursoProfesor(profesor, anio, semestre, curso));
                 }
             }
         } catch (SQLException e) {
@@ -145,7 +145,7 @@ public class CursoProfesoresDAO {
         pstmt.setInt(1, profesorID);
         ResultSet rs = pstmt.executeQuery();
         if (rs.next()) {
-            return new Profesor(
+            return DAOFactory.crearProfesor(
                 rs.getInt("id"),
                 rs.getString("nombres"),
                 rs.getString("apellidos"),
@@ -169,10 +169,10 @@ public class CursoProfesoresDAO {
         pstmt.setInt(1, cursoID);
         ResultSet rs = pstmt.executeQuery();
         if (rs.next()) {
-            Facultad facultad = new Facultad(rs.getInt("facultad_id"), rs.getString("facultad_nombre"), null);
-            Programa programa = new Programa(rs.getInt("programa_id"), rs.getString("programa_nombre"), 
+            Facultad facultad = DAOFactory.crearFacultad(rs.getInt("facultad_id"), rs.getString("facultad_nombre"), null);
+            Programa programa = DAOFactory.crearPrograma(rs.getInt("programa_id"), rs.getString("programa_nombre"), 
                                              rs.getDouble("duracion"), rs.getDate("registro"), facultad);
-            return new Curso(rs.getInt("id"), rs.getString("nombre"), programa, rs.getBoolean("activo"));
+            return DAOFactory.crearCurso(rs.getInt("id"), rs.getString("nombre"), programa, rs.getBoolean("activo"));
         }
     }
     return null;

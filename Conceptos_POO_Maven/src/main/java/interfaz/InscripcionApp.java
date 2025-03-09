@@ -4,6 +4,7 @@ import modelo.CursoProfesor;
 import BaseDatos.ConexionBD;
 import DAO.CursoDAO;
 import DAO.CursoProfesorDAO;
+import DAO.DAOFactory;
 import DAO.EstudianteDAO;
 import DAO.FacultadDAO;
 import DAO.InscripcionDAO;
@@ -25,9 +26,21 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import servicios.EstudianteService;
+import servicios.InscripcionService;
+import servicios.PersonaService;
+import servicios.ProfesorService;
 
 public class InscripcionApp extends JFrame {
- private JTextField idPersona, nombres, apellidos, email;
+private final PersonaService personaService = new PersonaService();
+private final ProfesorService profesorService = new ProfesorService();
+private final EstudianteService estudianteService = new EstudianteService();
+private final InscripcionService inscripcionService = new InscripcionService();
+        
+
+private JTextField idPersona, nombres, apellidos, email;
 private JTextField idProfesor, idCursoProfesor, anio, semestre, TipoContrato;
 private JTextField idInscripcion, idEstudiante;
 private JTextField idCurso, nombreCurso, idProgramaCurso;
@@ -38,6 +51,7 @@ private JTextArea outputArea;
 
 
     public InscripcionApp() {
+      
         setTitle("Sistema de Inscripciones");
         setSize(600, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -63,62 +77,40 @@ private JTextArea outputArea;
         add(new JScrollPane(outputArea), BorderLayout.SOUTH);
     }
 
-
 private JPanel crearPanelPersona() {
-    JPanel panel = new JPanel(new GridLayout(6, 2));
+        JPanel panel = new JPanel(new GridLayout(6, 2));
 
-    JTextField idPersona = new JTextField("9966");
-    JTextField nombresPersona = new JTextField("Giovany");
-    JTextField apellidosPersona = new JTextField("Ferrero");
-    JTextField emailPersona = new JTextField("GioFerrS@example.com");
+        JTextField idPersona = new JTextField("9966");
+        JTextField nombresPersona = new JTextField("Giovany");
+        JTextField apellidosPersona = new JTextField("Ferrero");
+        JTextField emailPersona = new JTextField("GioFerrS@example.com");
 
-    JButton btnGuardarPersona = new JButton("Guardar Persona");
+        JButton btnGuardarPersona = new JButton("Guardar Persona");
 
-    // Acción para guardar persona con validación de ID
-    btnGuardarPersona.addActionListener(e -> {
-        try {
-            int id = Integer.parseInt(idPersona.getText().trim()); // Intenta convertir a entero
-            guardarPersona(idPersona, nombresPersona, apellidosPersona, emailPersona);
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(panel, "Error: El ID debe ser un número entero.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-        }
-    });
+        btnGuardarPersona.addActionListener(e -> {
+            try {
+                int id = Integer.parseInt(idPersona.getText().trim());
+                personaService.guardarPersona(id, nombresPersona.getText(), apellidosPersona.getText(), emailPersona.getText());
+                
+                outputArea.append("Persona guardada: " + id + "\n");
+            } catch (NumberFormatException ex) {
+                mostrarError("Error: El ID debe ser un número entero.");
+            } catch (IllegalArgumentException ex) {
+                mostrarError(ex.getMessage());
+            } catch (SQLException ex) {
+                mostrarError("Error al guardar la persona: " + ex.getMessage());
+            }
+        });
 
-    panel.add(new JLabel("Ingrese ID Persona:")); panel.add(idPersona);
-    panel.add(new JLabel("Nombres:")); panel.add(nombresPersona);
-    panel.add(new JLabel("Apellidos:")); panel.add(apellidosPersona);
-    panel.add(new JLabel("Email:")); panel.add(emailPersona);
-    panel.add(btnGuardarPersona);
-    return panel;
-}
+        panel.add(new JLabel("Ingrese ID Persona:")); panel.add(idPersona);
+        panel.add(new JLabel("Nombres:")); panel.add(nombresPersona);
+        panel.add(new JLabel("Apellidos:")); panel.add(apellidosPersona);
+        panel.add(new JLabel("Email:")); panel.add(emailPersona);
+        panel.add(btnGuardarPersona);
+        panel.add(new JScrollPane(outputArea)); // Agrega el área de salida
 
-private void guardarPersona(JTextField idPersona, JTextField nombresPersona, JTextField apellidosPersona, JTextField emailPersona) {
-    try {
-        int idPersonaVal = Integer.parseInt(idPersona.getText());
-        String nombresVal = nombresPersona.getText();
-        String apellidosVal = apellidosPersona.getText();
-        String emailVal = emailPersona.getText();
-        
-        if (nombresVal.isEmpty() || apellidosVal.isEmpty() || emailVal.isEmpty()) {
-            mostrarError("Todos los campos deben estar completos.");
-            return;
-        }
-        // Crear el objeto Persona y guardarlo
-        Persona nuevaPersona = new Persona(idPersonaVal, nombresVal, apellidosVal, emailVal);
-        try (Connection conexion = ConexionBD.conectar()) {
-            
-            PersonaDAO personaDAO=new PersonaDAO(conexion);
-            personaDAO.guardarPersonaBD(conexion, nuevaPersona);
-     
-            outputArea.append("Persona guardada: " + idPersonaVal + "\n");
-            ConexionBD.mostrarDatosBD_PERSONA();
-        } catch (SQLException e) {
-            mostrarError("Error al guardar la persona: " + e.getMessage());
-        }
-    } catch (NumberFormatException ex) {
-        mostrarError("Datos inválidos. Asegúrate de ingresar valores numéricos para el ID.");
+        return panel;
     }
-}
 
     private JPanel crearPanelInscripcionPersona() {
     JPanel panel = new JPanel(new GridLayout(5, 2));
@@ -133,7 +125,7 @@ private void guardarPersona(JTextField idPersona, JTextField nombresPersona, JTe
             int idPersonaVal = Integer.parseInt(idPersona.getText().trim());
 
             // Validar si la persona existe en la tabla PERSONA
-            if (!existePersona(idPersonaVal)) {
+            if (!personaService.existePersona(idPersonaVal)) {
                 JOptionPane.showMessageDialog(panel, "Error: La persona no está registrada en la tabla PERSONA.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -142,6 +134,8 @@ private void guardarPersona(JTextField idPersona, JTextField nombresPersona, JTe
             inscribirPersona(idPersonaVal);
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(panel, "Error: El ID debe ser un número entero.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException ex) {
+            Logger.getLogger(InscripcionApp.class.getName()).log(Level.SEVERE, null, ex);
         }
     });
 
@@ -175,300 +169,223 @@ private void guardarPersona(JTextField idPersona, JTextField nombresPersona, JTe
 }
 
 private void eliminarPersona(int idPersona) {
-    String sqlEliminar = "DELETE FROM inscripciones_personas WHERE persona_id = ?";
-    
-    try (Connection conexion = ConexionBD.conectar();
-         PreparedStatement stmtEliminar = conexion.prepareStatement(sqlEliminar)) {
-        stmtEliminar.setInt(1, idPersona);
-        
-        int filasAfectadas = stmtEliminar.executeUpdate();
-        if (filasAfectadas > 0) {
-            ConexionBD.mostrarDatosBD_INSCRIPCIONES_PERSONAS();
-            outputArea.append("Persona eliminada correctamente de inscripciones.\n");
-        } else {
-            JOptionPane.showMessageDialog(null, "La persona no está en inscripciones_personas.", "Error", JOptionPane.ERROR_MESSAGE);
+        try {
+            boolean eliminada = personaService.eliminarPersona(idPersona);
+            if (eliminada) {
+                outputArea.append("Persona eliminada correctamente de inscripciones.\n");
+            } else {
+                mostrarError("La persona no está en inscripciones_personas.");
+            }
+        } catch (SQLException e) {
+            mostrarError("Error al eliminar persona: " + e.getMessage());
         }
-    } catch (SQLException e) {
-        mostrarError("Error al eliminar persona: " + e.getMessage());
     }
-}
 
 private void actualizarPersona(int idPersona) {
-    String sqlActualizar = "UPDATE inscripciones_personas SET nombres = ?, apellidos = ?, email = ? WHERE persona_id = ?";
-    String sqlBuscar = "SELECT * FROM PERSONA WHERE ID = ?";
-    
-    try (Connection conexion = ConexionBD.conectar();
-         PreparedStatement stmtBuscar = conexion.prepareStatement(sqlBuscar);
-         PreparedStatement stmtActualizar = conexion.prepareStatement(sqlActualizar)) {
-        
-        stmtBuscar.setInt(1, idPersona);
-        ResultSet rs = stmtBuscar.executeQuery();
-        if (!rs.next()) {
-            JOptionPane.showMessageDialog(null, "La persona no está registrada en la tabla PERSONA.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
-        String nombres = rs.getString("NOMBRES");
-        String apellidos = rs.getString("APELLIDOS");
-        String email = rs.getString("EMAIL");
-        
-        stmtActualizar.setString(1, nombres);
-        stmtActualizar.setString(2, apellidos);
-        stmtActualizar.setString(3, email);
-        stmtActualizar.setInt(4, idPersona);
-        
-        int filasAfectadas = stmtActualizar.executeUpdate();
-        if (filasAfectadas > 0) {
-            ConexionBD.mostrarDatosBD_INSCRIPCIONES_PERSONAS();
-            outputArea.append("Persona actualizada correctamente en inscripciones.\n");
-        } else {
-            JOptionPane.showMessageDialog(null, "No se pudo actualizar la persona en inscripciones_personas.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    } catch (SQLException e) {
-        mostrarError("Error al actualizar persona: " + e.getMessage());
-    }
-}
-
-
-private boolean existePersona(int idPersona) {
-    String sql = "SELECT COUNT(*) FROM PERSONA WHERE ID = ?";
-    
-    try (Connection conexion = ConexionBD.conectar();
-         PreparedStatement stmt = conexion.prepareStatement(sql)) {
-        stmt.setInt(1, idPersona);
-        
-        try (ResultSet rs = stmt.executeQuery()) {
-            if (rs.next() && rs.getInt(1) > 0) {
-                return true;
+     try {
+            boolean actualizada = personaService.actualizarPersona(idPersona);
+            if (actualizada) {
+                outputArea.append("Persona actualizada correctamente en inscripciones.\n");
+            } else {
+                mostrarError("La persona no está registrada en la tabla PERSONA.");
             }
+        } catch (SQLException e) {
+            mostrarError("Error al actualizar persona: " + e.getMessage());
         }
-    } catch (SQLException e) {
-        mostrarError("Error al validar existencia en PERSONA: " + e.getMessage());
     }
-    return false;
-}
 
 private void inscribirPersona(int idPersona) {
-    String sqlBuscar = "SELECT * FROM PERSONA WHERE ID = ?";
-    String sqlInsertar = "INSERT INTO inscripciones_personas (persona_id, nombres, apellidos, email) VALUES (?, ?, ?, ?)";
-    
-    try (Connection conexion = ConexionBD.conectar();
-         PreparedStatement stmtBuscar = conexion.prepareStatement(sqlBuscar);
-         PreparedStatement stmtInsertar = conexion.prepareStatement(sqlInsertar)) {
-        
-        // Obtener datos de la persona
-        stmtBuscar.setInt(1, idPersona);
-        ResultSet rs = stmtBuscar.executeQuery();
-        if (!rs.next()) return;
-        
-        String nombres = rs.getString("NOMBRES");
-        String apellidos = rs.getString("APELLIDOS");
-        String email = rs.getString("EMAIL");
-
-        // Insertar en inscripciones_personas
-        stmtInsertar.setInt(1, idPersona);
-        stmtInsertar.setString(2, nombres);
-        stmtInsertar.setString(3, apellidos);
-        stmtInsertar.setString(4, email);
-        
-        int filasAfectadas = stmtInsertar.executeUpdate();
-        if (filasAfectadas > 0) {
-            ConexionBD.mostrarDatosBD_INSCRIPCIONES_PERSONAS();
-            outputArea.append("Persona Agregada a Inscripcipcion correctamente.\n");} else {
-            JOptionPane.showMessageDialog(null, "No se pudo inscribir a la persona.", "Error", JOptionPane.ERROR_MESSAGE);
+    try {
+            boolean inscrita = personaService.inscribirPersona(idPersona);
+            if (inscrita) {
+                outputArea.append("Persona agregada a Inscripción correctamente.\n");
+            } else {
+                mostrarError("No se pudo inscribir a la persona. Verifique si está registrada en la base de datos.");
+            }
+        } catch (SQLException e) {
+            mostrarError("Error al inscribir persona: " + e.getMessage());
         }
-    } catch (SQLException e) {
-        mostrarError("Error al inscribir persona: " + e.getMessage());
-    }
 }
 
 
 private JPanel crearPanelProfesor() {
-    JPanel panel = new JPanel(new GridLayout(6, 2));
+        JPanel panel = new JPanel(new GridLayout(6, 2));
 
-    JTextField idProfesor = new JTextField("7755");
-    JTextField nombresProfesor = new JTextField("Juan");
-    JTextField apellidosProfesor = new JTextField("Pérez");
-    JTextField emailProfesor = new JTextField("juan@example.com");
-    JTextField tipoContratoProfesor = new JTextField("Catedratico");
+        JTextField idProfesor = new JTextField("7755");
+        JTextField nombresProfesor = new JTextField("Juan");
+        JTextField apellidosProfesor = new JTextField("Pérez");
+        JTextField emailProfesor = new JTextField("juan@example.com");
+        JTextField tipoContratoProfesor = new JTextField("Catedrático");
 
-    JButton btnGuardarProfesor = new JButton("Guardar Profesor");
+        JButton btnGuardarProfesor = new JButton("Guardar Profesor");
 
-    // Acción para guardar profesor con validación de ID
-    btnGuardarProfesor.addActionListener(e -> {
-        try {
-            int id = Integer.parseInt(idProfesor.getText().trim()); // Intenta convertir a entero
-            guardarProfesor(idProfesor, nombresProfesor, apellidosProfesor, emailProfesor, tipoContratoProfesor);
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(panel, "Error: El ID debe ser un número entero.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-        }
-    });
+        btnGuardarProfesor.addActionListener(e -> {
+            try {
+                int id = Integer.parseInt(idProfesor.getText().trim());
+                profesorService.guardarProfesor(id, nombresProfesor.getText(), apellidosProfesor.getText(), emailProfesor.getText(), tipoContratoProfesor.getText());
 
-    panel.add(new JLabel("Ingrese ID Profesor:")); panel.add(idProfesor);
-    panel.add(new JLabel("Nombres:")); panel.add(nombresProfesor);
-    panel.add(new JLabel("Apellidos:")); panel.add(apellidosProfesor);
-    panel.add(new JLabel("Email:")); panel.add(emailProfesor);
-    panel.add(new JLabel("Tipo de Contrato:")); panel.add(tipoContratoProfesor);
-    panel.add(btnGuardarProfesor);
-   
+                outputArea.append("Profesor guardado: " + id + "\n");
+            } catch (NumberFormatException ex) {
+                mostrarError("Error: El ID debe ser un número entero.");
+            } catch (IllegalArgumentException ex) {
+                mostrarError(ex.getMessage());
+            } catch (SQLException ex) {
+                mostrarError("Error al guardar el profesor: " + ex.getMessage());
+            }
+        });
 
-    return panel;
-}
+        panel.add(new JLabel("Ingrese ID Profesor:")); panel.add(idProfesor);
+        panel.add(new JLabel("Nombres:")); panel.add(nombresProfesor);
+        panel.add(new JLabel("Apellidos:")); panel.add(apellidosProfesor);
+        panel.add(new JLabel("Email:")); panel.add(emailProfesor);
+        panel.add(new JLabel("Tipo de Contrato:")); panel.add(tipoContratoProfesor);
+        panel.add(btnGuardarProfesor);
+        panel.add(new JScrollPane(outputArea)); // Agrega el área de salida
 
-
-private void guardarProfesor(JTextField idProfesor, JTextField nombresProfesor, JTextField apellidosProfesor, JTextField emailProfesor, JTextField tipoContratoProfesor) {
-    try {
-        int idProfesorVal = Integer.parseInt(idProfesor.getText().trim());
-        String nombresVal = nombresProfesor.getText().trim();
-        String apellidosVal = apellidosProfesor.getText().trim();
-        String emailVal = emailProfesor.getText().trim();
-        String tipoContratoVal = tipoContratoProfesor.getText().trim();
-
-        if (nombresVal.isEmpty() || apellidosVal.isEmpty() || emailVal.isEmpty() || tipoContratoVal.isEmpty()) {
-            mostrarError("Todos los campos deben estar completos.");
-            return;
-        }
-
-        // Crear el objeto Profesor y guardarlo
-        Profesor nuevoProfesor = new Profesor(idProfesorVal, nombresVal, apellidosVal, emailVal, tipoContratoVal);
-        try (Connection conexion = ConexionBD.conectar()) {
-            
-             ProfesorDAO profesorDAO=new ProfesorDAO(conexion);
-            profesorDAO.guardarProfesorBD(conexion, nuevoProfesor);
-     
-          
-            ConexionBD.mostrarDatosBD_PROFESOR();
-            outputArea.append("Profesor guardado: " + idProfesorVal + "\n");
-        } catch (SQLException e) {
-            mostrarError("Error al guardar el profesor: " + e.getMessage());
-        }
-    } catch (NumberFormatException ex) {
-        mostrarError("Datos inválidos. Asegúrate de ingresar valores numéricos para el ID.");
+        return panel;
     }
-}
 
 
 private JPanel crearPanelEstudiante() {
-    JPanel panel = new JPanel(new GridLayout(5, 2));
-    
-    JTextField idEstudiante = new JTextField("1199");
-    JTextField codigoEstudiante = new JTextField("333337777");
-    JTextField nombresEstudiante = new JTextField("Carla");
-    JTextField apellidosEstudiante = new JTextField("Ramirez");
-    JTextField emailEstudiante = new JTextField("CarlaR@gmail.com");
-    JTextField promedioEstudiante = new JTextField("4.5");
-    JTextField idPrograma = new JTextField("603");
-    JCheckBox activoEstudiante = new JCheckBox("Activo", true);
-    JButton btnGuardarEstudiante = new JButton("Guardar Estudiante");
+        JPanel panel = new JPanel(new GridLayout(5, 2));
 
-    // Acción para guardar Estudiante con validación de ID y Programa existente
-    btnGuardarEstudiante.addActionListener(e -> {
-        try {
-            int id = Integer.parseInt(idEstudiante.getText().trim());
-            int codigo = Integer.parseInt(codigoEstudiante.getText().trim());
-            String nombres = nombresEstudiante.getText().trim();
-            String apellidos = apellidosEstudiante.getText().trim();
-            String email = emailEstudiante.getText().trim();
-            double promedio = Double.parseDouble(promedioEstudiante.getText().trim());
-            int idProgramaVal = Integer.parseInt(idPrograma.getText().trim());
-            boolean activo = activoEstudiante.isSelected();
+        JTextField idEstudiante = new JTextField("1199");
+        JTextField codigoEstudiante = new JTextField("333337777");
+        JTextField nombresEstudiante = new JTextField("Carla");
+        JTextField apellidosEstudiante = new JTextField("Ramirez");
+        JTextField emailEstudiante = new JTextField("CarlaR@gmail.com");
+        JTextField promedioEstudiante = new JTextField("4.5");
+        JTextField idPrograma = new JTextField("603");
+        JCheckBox activoEstudiante = new JCheckBox("Activo", true);
+        JButton btnGuardarEstudiante = new JButton("Guardar Estudiante");
 
-            if (nombres.isEmpty() || apellidos.isEmpty() || email.isEmpty()) {
-                JOptionPane.showMessageDialog(panel, "Error: Ningún campo de texto puede estar vacío.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-                return;
+        btnGuardarEstudiante.addActionListener(e -> {
+            try {
+                int id = Integer.parseInt(idEstudiante.getText().trim());
+                int codigo = Integer.parseInt(codigoEstudiante.getText().trim());
+                String nombres = nombresEstudiante.getText().trim();
+                String apellidos = apellidosEstudiante.getText().trim();
+                String email = emailEstudiante.getText().trim();
+                double promedio = Double.parseDouble(promedioEstudiante.getText().trim());
+                int idProgramaVal = Integer.parseInt(idPrograma.getText().trim());
+                boolean activo = activoEstudiante.isSelected();
+
+                if (nombres.isEmpty() || apellidos.isEmpty() || email.isEmpty()) {
+                    mostrarError("Error: Ningún campo de texto puede estar vacío.");
+                    return;
+                }
+
+                Programa programa = obtenerProgramaPorID(idProgramaVal);
+                if (programa == null) {
+                    mostrarError("Error: No existe un programa con ese ID en la base de datos.");
+                    return;
+                }
+
+                estudianteService.guardarEstudiante(id, codigo, nombres, apellidos, email, promedio, programa, activo);
+                outputArea.append("Estudiante guardado: " + id + "\n");
+
+            } catch (NumberFormatException ex) {
+                mostrarError("Error: Los ID, código y promedio deben ser valores numéricos.");
+            } catch (IllegalArgumentException ex) {
+                mostrarError(ex.getMessage());
+            } catch (SQLException ex) {
+                mostrarError("Error al guardar el estudiante: " + ex.getMessage());
             }
+        });
 
-            Programa programa = obtenerProgramaPorID(idProgramaVal);
-            if (programa == null) {
-                JOptionPane.showMessageDialog(panel, "Error: No existe un programa con ese ID en la base de datos.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+        panel.add(new JLabel("Ingrese ID Estudiante:"));
+        panel.add(idEstudiante);
+        panel.add(new JLabel("Código Estudiantil:"));
+        panel.add(codigoEstudiante);
+        panel.add(new JLabel("Nombres:"));
+        panel.add(nombresEstudiante);
+        panel.add(new JLabel("Apellidos:"));
+        panel.add(apellidosEstudiante);
+        panel.add(new JLabel("Email:"));
+        panel.add(emailEstudiante);
+        panel.add(new JLabel("Promedio:"));
+        panel.add(promedioEstudiante);
+        panel.add(new JLabel("ID Programa(Defecto):"));
+        panel.add(idPrograma);
+        panel.add(new JLabel("Activo:"));
+        panel.add(activoEstudiante);
+        panel.add(btnGuardarEstudiante);
+        panel.add(new JScrollPane(outputArea));
 
-            guardarEstudiante(id, codigo, nombres, apellidos, email, promedio, programa, activo);
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(panel, "Error: Los ID, código y promedio deben ser valores numéricos.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-        }
-    });
-    
-    panel.add(new JLabel("Ingrese ID Estudiante:")); panel.add(idEstudiante);
-    panel.add(new JLabel("Código Estudiantil:")); panel.add(codigoEstudiante);
-    panel.add(new JLabel("Nombres:")); panel.add(nombresEstudiante);
-    panel.add(new JLabel("Apellidos:")); panel.add(apellidosEstudiante);
-    panel.add(new JLabel("Email:")); panel.add(emailEstudiante);
-    panel.add(new JLabel("Promedio:")); panel.add(promedioEstudiante);
-    panel.add(new JLabel("ID Programa(Defecto):")); panel.add(idPrograma);
-    panel.add(new JLabel("Activo:")); panel.add(activoEstudiante);
-    panel.add(btnGuardarEstudiante);
-    
-    return panel;
-}
-
-
-
-private void guardarEstudiante(int id, int codigo, String nombres, String apellidos, String email, double promedio, Programa programa, boolean activo) {
-    try (Connection conexion = ConexionBD.conectar()) {
-        Estudiante nuevoEstudiante = new Estudiante(codigo, programa, activo , promedio,id, nombres, apellidos, email);
-        
-        EstudianteDAO estudianteDAO=new EstudianteDAO(conexion);
-        estudianteDAO.guardarEstudianteBD(conexion, nuevoEstudiante);
-     
-        ConexionBD.mostrarDatosBD_ESTUDIANTE();
-        outputArea.append("Estudiante guardado: " + id + "\n");
-    } catch (SQLException e) {
-        mostrarError("Error al guardar el estudiante: " + e.getMessage());
+        return panel;
     }
-}
+
 
 
 private JPanel crearPanelInscripcion() {
-    JPanel panel = new JPanel(new GridLayout(5, 2));
-    
-    JTextField idCurso = new JTextField("912");
-    JTextField idEstudiante = new JTextField("1123498175");
-    JTextField año = new JTextField("1997");
-    JTextField semestre = new JTextField("2");
-    JButton btnGuardarInscripcion = new JButton("Guardar Inscripción");
+        JPanel panel = new JPanel(new GridLayout(5, 2));
 
-    // Acción para guardar Inscripción con validaciones
-    btnGuardarInscripcion.addActionListener(e -> {
-        try {
-            int idCursoVal = Integer.parseInt(idCurso.getText().trim());
-            int idEstudianteVal = Integer.parseInt(idEstudiante.getText().trim());
-            int añoVal = Integer.parseInt(año.getText().trim());
-            int semestreVal = Integer.parseInt(semestre.getText().trim());
+        JTextField idCurso = new JTextField("912");
+        JTextField idEstudiante = new JTextField("1123498175");
+        JTextField año = new JTextField("1997");
+        JTextField semestre = new JTextField("2");
+        JButton btnGuardarInscripcion = new JButton("Guardar Inscripción");
 
-            // Validación de semestre (solo 1 o 2)
-            if (semestreVal < 1 || semestreVal > 2) {
-                JOptionPane.showMessageDialog(panel, "Error: El semestre debe ser 1 o 2.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-                return;
+        btnGuardarInscripcion.addActionListener(e -> {
+            try {
+                int idCursoVal = Integer.parseInt(idCurso.getText().trim());
+                int idEstudianteVal = Integer.parseInt(idEstudiante.getText().trim());
+                int añoVal = Integer.parseInt(año.getText().trim());
+                int semestreVal = Integer.parseInt(semestre.getText().trim());
+
+                if (semestreVal < 1 || semestreVal > 2) {
+                    mostrarError("Error: El semestre debe ser 1 o 2.");
+                    return;
+                }
+
+                Curso curso = obtenerCursoPorID(idCursoVal);
+                if (curso == null) {
+                    mostrarError("Error: No existe un curso con ese ID en la base de datos.");
+                    return;
+                }
+
+                Estudiante estudiante = obtenerEstudiantePorID(idEstudianteVal);
+                if (estudiante == null) {
+                    mostrarError("Error: No existe un estudiante con ese ID en la base de datos.");
+                    return;
+                }
+
+                inscripcionService.guardarInscripcion(curso, añoVal, semestreVal, estudiante);
+                outputArea.append("Inscripción guardada: Curso " + curso.getID() + " - Estudiante " + estudiante.getID() + "\n");
+
+            } catch (NumberFormatException ex) {
+                mostrarError("Error: Los ID, año y semestre deben ser números enteros.");
+            } catch (IllegalArgumentException ex) {
+                mostrarError(ex.getMessage());
+            } catch (SQLException ex) {
+                mostrarError("Error al guardar la inscripción: " + ex.getMessage());
             }
+        });
 
-            Curso curso = obtenerCursoPorID(idCursoVal);
-            if (curso == null) {
-                JOptionPane.showMessageDialog(panel, "Error: No existe un curso con ese ID en la base de datos.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+        panel.add(new JLabel("ID Curso(O Dejelo por defecto):"));
+        panel.add(idCurso);
+        panel.add(new JLabel("ID Estudiante(O Dejelo por defecto):"));
+        panel.add(idEstudiante);
+        panel.add(new JLabel("Año:"));
+        panel.add(año);
+        panel.add(new JLabel("Semestre:"));
+        panel.add(semestre);
+        panel.add(btnGuardarInscripcion);
+        panel.add(new JScrollPane(outputArea));
 
-            Estudiante estudiante = obtenerEstudiantePorID(idEstudianteVal);
-            if (estudiante == null) {
-                JOptionPane.showMessageDialog(panel, "Error: No existe un estudiante con ese ID en la base de datos.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+        return panel;
+    }
 
-            guardarInscripcion(curso, añoVal, semestreVal, estudiante);
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(panel, "Error: Los ID, año y semestre deben ser números enteros.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-        }
-    });
 
-    panel.add(new JLabel("ID Curso(O Dejelo por defecto):")); panel.add(idCurso);
-    panel.add(new JLabel("ID Estudiante(O Dejelo por defecto):")); panel.add(idEstudiante);
-    panel.add(new JLabel("Año:")); panel.add(año);
-    panel.add(new JLabel("Semestre:")); panel.add(semestre);
-    panel.add(btnGuardarInscripcion);
 
-    return panel;
-}
+
+
+
+
+
+
+
+
 
 private Curso obtenerCursoPorID(int idCurso) {
     try (Connection conexion = ConexionBD.conectar()) {
@@ -477,7 +394,7 @@ private Curso obtenerCursoPorID(int idCurso) {
             pstmt.setInt(1, idCurso);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return new Curso(
+                    return DAOFactory.crearCurso(
                         rs.getInt("id"),
                         rs.getString("nombre"),
                         obtenerProgramaPorID(rs.getInt("programa_id")),
@@ -519,7 +436,7 @@ private Estudiante obtenerEstudiantePorID(int idEstudiante) {
             pstmt.setInt(1, idEstudiante);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return new Estudiante(
+                    return DAOFactory.crearEstudiante(
                         rs.getInt("codigo"),
                         obtenerProgramaPorID(rs.getInt("programa_id")),
                         rs.getBoolean("activo"),
@@ -540,19 +457,7 @@ private Estudiante obtenerEstudiantePorID(int idEstudiante) {
 
 
 
-private void guardarInscripcion(Curso curso, int año, int semestre, Estudiante estudiante) {
-    try (Connection conexion = ConexionBD.conectar()) {
-        Inscripcion nuevaInscripcion = new Inscripcion(curso, año, semestre, estudiante);
- 
-        InscripcionDAO inscripcionDAO=new InscripcionDAO(conexion);
-        inscripcionDAO.guardarInscripcionBD(conexion, nuevaInscripcion);
-        
-        ConexionBD.mostrarDatosBD_INSCRIPCION();
-        outputArea.append("Inscripción guardada: Curso " + curso.getID() + " - Estudiante " + estudiante.getID() + "\n");
-    } catch (SQLException e) {
-        mostrarError("Error al guardar la inscripción: " + e.getMessage());
-    }
-}
+
 
 private JPanel crearPanelCursoProfesor() {
     JPanel panel = new JPanel(new GridLayout(5, 2));
@@ -604,6 +509,22 @@ private JPanel crearPanelCursoProfesor() {
     return panel;
 }
 
+private void guardarCursoProfesor(Curso curso, int anio, int semestre, Profesor profesor) {
+    try (Connection conexion = ConexionBD.conectar()) {
+        CursoProfesor nuevaAsignacion = DAOFactory.crearCursoProfesor(profesor, anio, semestre, curso);
+        
+        CursoProfesorDAO cursoProfesorDAO=new CursoProfesorDAO(conexion);
+        cursoProfesorDAO.guardarCursoProfesorBD(conexion, nuevaAsignacion);
+     
+        ConexionBD.mostrarDatosBD_CURSO_PROFESOR();
+        outputArea.append("Asignación guardada: Curso " + curso.getID() + " - Profesor " + profesor.getID() + "\n");
+    } catch (SQLException e) {
+        mostrarError("Error al guardar la asignación: " + e.getMessage());
+    }
+}
+
+
+
 private Profesor obtenerProfesorPorID(int idProfesor) {
     try (Connection conexion = ConexionBD.conectar()) {
         // 🔹 Consulta combinando profesor y persona para obtener toda la información
@@ -616,7 +537,7 @@ private Profesor obtenerProfesorPorID(int idProfesor) {
             pstmt.setInt(1, idProfesor);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return new Profesor(
+                    return DAOFactory.crearProfesor(
                         rs.getInt("id"),
                         rs.getString("nombres"),
                         rs.getString("apellidos"),
@@ -633,19 +554,6 @@ private Profesor obtenerProfesorPorID(int idProfesor) {
 }
 
 
-private void guardarCursoProfesor(Curso curso, int anio, int semestre, Profesor profesor) {
-    try (Connection conexion = ConexionBD.conectar()) {
-        CursoProfesor nuevaAsignacion = new CursoProfesor(profesor, anio, semestre, curso);
-        
-        CursoProfesorDAO cursoProfesorDAO=new CursoProfesorDAO(conexion);
-        cursoProfesorDAO.guardarCursoProfesorBD(conexion, nuevaAsignacion);
-     
-        ConexionBD.mostrarDatosBD_CURSO_PROFESOR();
-        outputArea.append("Asignación guardada: Curso " + curso.getID() + " - Profesor " + profesor.getID() + "\n");
-    } catch (SQLException e) {
-        mostrarError("Error al guardar la asignación: " + e.getMessage());
-    }
-}
 
 
 
@@ -699,7 +607,7 @@ private Programa obtenerProgramaPorID(int idPrograma) {
             pstmt.setInt(1, idPrograma);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return new Programa(
+                    return DAOFactory.crearPrograma(
                         rs.getInt("id"),
                         rs.getString("nombre"),
                         rs.getDouble("duracion"),
@@ -717,7 +625,7 @@ private Programa obtenerProgramaPorID(int idPrograma) {
 
 private void guardarCurso(int idCurso, String nombre, Programa programa, boolean activo) {
     try (Connection conexion = ConexionBD.conectar()) {
-        Curso nuevoCurso = new Curso(idCurso, nombre, programa, activo);
+        Curso nuevoCurso = DAOFactory.crearCurso(idCurso, nombre, programa, activo);
         CursoDAO cursoDAO = new CursoDAO(conexion);
         cursoDAO.guardarCursoBD(conexion, nuevoCurso);
         ConexionBD.mostrarDatosBD_CURSO();
@@ -779,7 +687,7 @@ private Facultad obtenerFacultadPorID(int idFacultad) {
             pstmt.setInt(1, idFacultad);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return new Facultad(
+                    return DAOFactory.crearFacultad(
                         rs.getInt("id"),
                         rs.getString("nombre"),
                         obtenerPersonaPorID(rs.getInt("decano_id")) // Recuperar también al decano
@@ -795,7 +703,7 @@ private Facultad obtenerFacultadPorID(int idFacultad) {
 
 private void guardarPrograma(int idPrograma, String nombre, double duracion, Date registro, Facultad facultad) {
     try (Connection conexion = ConexionBD.conectar()) {
-        Programa nuevoPrograma = new Programa(idPrograma, nombre, duracion, registro, facultad);
+        Programa nuevoPrograma = DAOFactory.crearPrograma(idPrograma, nombre, duracion, registro, facultad);
         
         ProgramaDAO programaDAO = new ProgramaDAO(conexion);
         programaDAO.guardarProgramaBD(conexion, nuevoPrograma);
@@ -857,7 +765,7 @@ private Persona obtenerPersonaPorID(int idPersona) {
             pstmt.setInt(1, idPersona);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return new Persona(
+                    return DAOFactory.crearPersona(
                         rs.getInt("id"),
                         rs.getString("nombres"),
                         rs.getString("apellidos"),
@@ -874,7 +782,7 @@ private Persona obtenerPersonaPorID(int idPersona) {
 
 private void guardarFacultad(int idFacultad, String nombreFacultad, Persona decano) {
     try (Connection conexion = ConexionBD.conectar()) {
-        Facultad nuevaFacultad = new Facultad(idFacultad, nombreFacultad, decano);
+        Facultad nuevaFacultad = DAOFactory.crearFacultad(idFacultad, nombreFacultad, decano);
         
         FacultadDAO facultadDAO = new FacultadDAO(conexion);
         facultadDAO.guardarFacultadBD(conexion, nuevaFacultad);
@@ -1056,7 +964,7 @@ private Inscripcion obtenerInscripcionPorCursoYEstudiante(int cursoID, int estud
             pstmt.setInt(2, estudianteID);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return new Inscripcion(
+                    return DAOFactory.crearInscripcion(
                         obtenerCursoPorID(rs.getInt("curso_id")),
                         rs.getInt("anio"),
                         rs.getInt("semestre"),
