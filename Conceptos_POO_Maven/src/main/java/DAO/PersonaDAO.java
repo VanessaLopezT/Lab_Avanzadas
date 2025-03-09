@@ -41,33 +41,37 @@ public void guardarPersonaBD(Connection conexion, Persona persona) throws SQLExc
     }
 }
     
-    public boolean eliminarPersona(int idPersona) throws SQLException {
-        String sql = "DELETE FROM inscripciones_personas WHERE persona_id = ?";
-        try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
-            stmt.setInt(1, idPersona);
-            ConexionBD.mostrarDatosBD_INSCRIPCIONES_PERSONAS();
-            return stmt.executeUpdate() > 0;
-        }
+    public void eliminarPersona(int idPersona) throws SQLException {
+    String sql = "DELETE FROM inscripciones_personas WHERE persona_id = ?";
+    try (PreparedStatement stmt = conexion.prepareStatement(sql)) {
+        stmt.setInt(1, idPersona);
+        stmt.executeUpdate();
+        ConexionBD.mostrarDatosBD_INSCRIPCIONES_PERSONAS();
     }
+}
 
-    public boolean actualizarPersona(int idPersona) throws SQLException {
-        String sqlBuscar = "SELECT * FROM PERSONA WHERE ID = ?";
-        String sqlActualizar = "UPDATE inscripciones_personas SET nombres = ?, apellidos = ?, email = ? WHERE persona_id = ?";
-        try (PreparedStatement stmtBuscar = conexion.prepareStatement(sqlBuscar);
-             PreparedStatement stmtActualizar = conexion.prepareStatement(sqlActualizar)) {
-            
-            stmtBuscar.setInt(1, idPersona);
-            ResultSet rs = stmtBuscar.executeQuery();
-            if (!rs.next()) return false;
 
-            stmtActualizar.setString(1, rs.getString("NOMBRES"));
-            stmtActualizar.setString(2, rs.getString("APELLIDOS"));
-            stmtActualizar.setString(3, rs.getString("EMAIL"));
-            stmtActualizar.setInt(4, idPersona);
-            ConexionBD.mostrarDatosBD_INSCRIPCIONES_PERSONAS();
-            return stmtActualizar.executeUpdate() > 0;
-        }
+   public void actualizarPersona(int idPersona) throws SQLException {
+    String sqlBuscar = "SELECT * FROM PERSONA WHERE ID = ?";
+    String sqlActualizar = "UPDATE inscripciones_personas SET nombres = ?, apellidos = ?, email = ? WHERE persona_id = ?";
+    try (PreparedStatement stmtBuscar = conexion.prepareStatement(sqlBuscar);
+         PreparedStatement stmtActualizar = conexion.prepareStatement(sqlActualizar)) {
+        
+        stmtBuscar.setInt(1, idPersona);
+        ResultSet rs = stmtBuscar.executeQuery();
+        if (!rs.next()) return;
+
+        stmtActualizar.setString(1, rs.getString("NOMBRES"));
+        stmtActualizar.setString(2, rs.getString("APELLIDOS"));
+        stmtActualizar.setString(3, rs.getString("EMAIL"));
+        stmtActualizar.setInt(4, idPersona);
+        stmtActualizar.executeUpdate();
+        
+        // Se llama a mostrarDatos sin depender de un return booleano
+        ConexionBD.mostrarDatosBD_INSCRIPCIONES_PERSONAS();
     }
+}
+
 
     public boolean existePersona(int idPersona) throws SQLException {
         String sql = "SELECT COUNT(*) FROM PERSONA WHERE ID = ?";
@@ -79,24 +83,25 @@ public void guardarPersonaBD(Connection conexion, Persona persona) throws SQLExc
         }
     }
 
-    public boolean inscribirPersona(int idPersona) throws SQLException {
-        String sqlBuscar = "SELECT * FROM PERSONA WHERE ID = ?";
-        String sqlInsertar = "INSERT INTO inscripciones_personas (persona_id, nombres, apellidos, email) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement stmtBuscar = conexion.prepareStatement(sqlBuscar);
-             PreparedStatement stmtInsertar = conexion.prepareStatement(sqlInsertar)) {
+    public void inscribirPersona(int idPersona) throws SQLException {
+    String sqlBuscar = "SELECT * FROM PERSONA WHERE ID = ?";
+    String sqlInsertar = "INSERT INTO inscripciones_personas (persona_id, nombres, apellidos, email) VALUES (?, ?, ?, ?)";
+    try (PreparedStatement stmtBuscar = conexion.prepareStatement(sqlBuscar);
+         PreparedStatement stmtInsertar = conexion.prepareStatement(sqlInsertar)) {
 
-            stmtBuscar.setInt(1, idPersona);
-            ResultSet rs = stmtBuscar.executeQuery();
-            if (!rs.next()) return false;
+        stmtBuscar.setInt(1, idPersona);
+        ResultSet rs = stmtBuscar.executeQuery();
+        if (!rs.next()) return;
 
-            stmtInsertar.setInt(1, idPersona);
-            stmtInsertar.setString(2, rs.getString("NOMBRES"));
-            stmtInsertar.setString(3, rs.getString("APELLIDOS"));
-            stmtInsertar.setString(4, rs.getString("EMAIL"));
-            ConexionBD.mostrarDatosBD_INSCRIPCIONES_PERSONAS();
-            return stmtInsertar.executeUpdate() > 0;
-        }
+        stmtInsertar.setInt(1, idPersona);
+        stmtInsertar.setString(2, rs.getString("NOMBRES"));
+        stmtInsertar.setString(3, rs.getString("APELLIDOS"));
+        stmtInsertar.setString(4, rs.getString("EMAIL"));
+        stmtInsertar.executeUpdate();
+        ConexionBD.mostrarDatosBD_INSCRIPCIONES_PERSONAS();
     }
+}
+
 
     public Persona obtenerPersonaPorID(int idPersona) throws SQLException {
         String sql = "SELECT * FROM PERSONA WHERE ID = ?";

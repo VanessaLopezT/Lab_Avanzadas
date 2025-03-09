@@ -22,7 +22,6 @@ servicios\ProfesorService.class
 modelo\CursoProfesor.class
 BaseDatos\ConexionBD.class
 modelo\Facultad.class
-servicios\InscripcionesPersonaService.class
 DAO\CursosInscritosDAO.class
 servicios\InscripcionService.class
 servicios\ProgramaService.class

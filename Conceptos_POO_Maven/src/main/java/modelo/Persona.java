@@ -4,7 +4,6 @@
  */
 package modelo;
 import java.io.Serializable;
-import DAO.InscripcionesPersonaDAO;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +24,7 @@ public class Persona implements Serializable{
         this.email = email;
     }
     
-    
-
-
-
+  
 
     @Override
     public String toString() {

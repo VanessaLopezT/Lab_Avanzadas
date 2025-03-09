@@ -3,10 +3,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package DAO;
+import BaseDatos.ConexionBD;
 import modelo.Curso;
 import java.sql.*;
 import java.sql.Connection;
 import java.sql.SQLException;
+import modelo.Programa;
 
 
 public class CursoDAO {
@@ -39,6 +41,29 @@ public class CursoDAO {
             e.printStackTrace();
         }
     }
+    
+    public Curso obtenerCursoPorID(int idCurso) {
+        try (Connection conexion = ConexionBD.conectar()) {
+            String sql = "SELECT * FROM curso WHERE id = ?";
+            try (PreparedStatement pstmt = conexion.prepareStatement(sql)) {
+                pstmt.setInt(1, idCurso);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        return DAOFactory.crearCurso(
+                            rs.getInt("id"),
+                            rs.getString("nombre"),
+                            new ProgramaDAO(conexion).obtenerProgramaPorID(rs.getInt("programa_id")),
+                            rs.getBoolean("activo")
+                        );
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al buscar el curso: " + e.getMessage());
+        }
+        return null;
+    }
+    
     
     
 

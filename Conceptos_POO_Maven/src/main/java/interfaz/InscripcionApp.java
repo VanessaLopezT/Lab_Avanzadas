@@ -1,16 +1,8 @@
 package interfaz;
 
-import modelo.CursoProfesor;
 import BaseDatos.ConexionBD;
-import DAO.CursoDAO;
-import DAO.CursoProfesorDAO;
+import modelo.CursoProfesor;
 import DAO.DAOFactory;
-import DAO.EstudianteDAO;
-import DAO.FacultadDAO;
-import DAO.InscripcionDAO;
-import DAO.PersonaDAO;
-import DAO.ProfesorDAO;
-import DAO.ProgramaDAO;
 import modelo.Inscripcion;
 import modelo.Profesor;
 import modelo.Programa;
@@ -52,14 +44,7 @@ private final CursosInscritosService cursosInscritosService = new CursosInscrito
 private final CursoProfesoresService cursoProfesoresService = new CursoProfesoresService();
                            
 
-private JTextField idPersona, nombres, apellidos, email;
-private JTextField idProfesor, idCursoProfesor, anio, semestre, TipoContrato;
-private JTextField idInscripcion, idEstudiante;
-private JTextField idCurso, nombreCurso, idProgramaCurso;
-private JTextField idFacultad, nombreFacultad, idDecano;
-private JTextField idPrograma, nombrePrograma, duracionPrograma, fechaRegistroPrograma, idFacultadPrograma;
-private JTextField idCursoInscripcion, idEstudianteInscripcion, semestreInscripcion;
-private JTextArea outputArea;
+private final JTextArea outputArea;
 
 
     public InscripcionApp() {
@@ -103,9 +88,7 @@ private JPanel crearPanelPersona() {
             try {
                 int id = Integer.parseInt(idPersona.getText().trim());
                 personaService.guardarPersona(id, nombresPersona.getText(), apellidosPersona.getText(), emailPersona.getText());
-                
                 outputArea.append("Persona guardada: " + id + "\n");
-                ConexionBD.mostrarDatosBD_PERSONA();
             } catch (NumberFormatException ex) {
                 mostrarError("Error: El ID debe ser un número entero.");
             } catch (IllegalArgumentException ex) {
@@ -182,46 +165,32 @@ private JPanel crearPanelPersona() {
 }
 
 private void eliminarPersona(int idPersona) {
-        try {
-            boolean eliminada = personaService.eliminarPersona(idPersona);
-            if (eliminada) {
-                outputArea.append("Persona eliminada correctamente de inscripciones.\n");
-                ConexionBD.mostrarDatosBD_INSCRIPCIONES_PERSONAS();
-            } else {
-                mostrarError("La persona no está en inscripciones_personas.");
-            }
-        } catch (SQLException e) {
-            mostrarError("Error al eliminar persona: " + e.getMessage());
-        }
+    try {
+        personaService.eliminarPersona(idPersona);
+        outputArea.append("Persona eliminada correctamente de inscripciones.\n");
+    } catch (SQLException e) {
+        mostrarError("Error al eliminar persona: " + e.getMessage());
     }
+}
 
 private void actualizarPersona(int idPersona) {
-     try {
-            boolean actualizada = personaService.actualizarPersona(idPersona);
-            if (actualizada) {
-                outputArea.append("Persona actualizada correctamente en inscripciones.\n");
-                ConexionBD.mostrarDatosBD_INSCRIPCIONES_PERSONAS();
-            } else {
-                mostrarError("La persona no está registrada en la tabla PERSONA.");
-            }
-        } catch (SQLException e) {
-            mostrarError("Error al actualizar persona: " + e.getMessage());
-        }
+    try {
+        personaService.actualizarPersona(idPersona);
+        outputArea.append("Persona actualizada correctamente en inscripciones.\n");
+    } catch (SQLException e) {
+        mostrarError("Error al actualizar persona: " + e.getMessage());
     }
+}
 
 private void inscribirPersona(int idPersona) {
     try {
-            boolean inscrita = personaService.inscribirPersona(idPersona);
-            if (inscrita) {
-                outputArea.append("Persona agregada a Inscripción correctamente.\n");
-                ConexionBD.mostrarDatosBD_INSCRIPCIONES_PERSONAS();
-            } else {
-                mostrarError("No se pudo inscribir a la persona. Verifique si está registrada en la base de datos.");
-            }
-        } catch (SQLException e) {
-            mostrarError("Error al inscribir persona: " + e.getMessage());
-        }
+        personaService.inscribirPersona(idPersona);
+        outputArea.append("Persona agregada a Inscripción correctamente.\n");
+    } catch (SQLException e) {
+        mostrarError("Error al inscribir persona: " + e.getMessage());
+    }
 }
+
 
 
 private JPanel crearPanelProfesor() {
@@ -683,108 +652,92 @@ private JPanel crearPanelCursosInscritos() {
 
    
 
-
-
 private JPanel crearPanelCursoProfesores() {
-        JPanel panel = new JPanel(new GridLayout(6, 2));
+    JPanel panel = new JPanel(new GridLayout(6, 2));
 
-        JTextField idProfesor = new JTextField("9176");
-        JTextField idCurso = new JTextField("912");
-        JTextField anio = new JTextField("2024");
-        JTextField semestre = new JTextField("2");
-        JButton btnGuardarCursoProfesor = new JButton("Guardar Asignación");
-        JButton btnEliminarCursoProfesores = new JButton("Eliminar Asignación");
-        JButton btnActualizarCursoProfesor = new JButton("Actualizar Asignación");
+    JTextField idProfesor = new JTextField("9176");
+    JTextField idCurso = new JTextField("912");
+    JTextField anio = new JTextField("2024");
+    JTextField semestre = new JTextField("2");
+    JButton btnGuardarCursoProfesor = new JButton("Guardar Asignación");
+    JButton btnEliminarCursoProfesores = new JButton("Eliminar Asignación");
+    JButton btnActualizarCursoProfesor = new JButton("Actualizar Asignación");
 
-        btnGuardarCursoProfesor.addActionListener(e -> {
-            try {
-                int idProfesorVal = Integer.parseInt(idProfesor.getText().trim());
-                int idCursoVal = Integer.parseInt(idCurso.getText().trim());
-                int anioVal = Integer.parseInt(anio.getText().trim());
-                int semestreVal = Integer.parseInt(semestre.getText().trim());
+    btnGuardarCursoProfesor.addActionListener(e -> {
+        try {
+            int idProfesorVal = Integer.parseInt(idProfesor.getText().trim());
+            int idCursoVal = Integer.parseInt(idCurso.getText().trim());
+            int anioVal = Integer.parseInt(anio.getText().trim());
+            int semestreVal = Integer.parseInt(semestre.getText().trim());
 
-                Profesor profesor = obtenerProfesorPorID(idProfesorVal);
-                Curso curso = obtenerCursoPorID(idCursoVal);
+            Profesor profesor = obtenerProfesorPorID(idProfesorVal);
+            Curso curso = obtenerCursoPorID(idCursoVal);
 
-                if (profesor == null || curso == null) {
-                    mostrarError("Error: El curso o el profesor no existen.");
-                    return;
-                }
-
-                CursoProfesor nuevaAsignacion = new CursoProfesor(profesor, anioVal, semestreVal, curso);
-                if (cursoProfesoresService.inscribirCursoProfesor(nuevaAsignacion)) {
-                     ConexionBD.mostrarDatosBD_CURSO_PROFESORES();
-                    outputArea.append("Profesor asignado al curso correctamente.\n");
-                } else {
-                    mostrarError("Error: La asignación ya existe o no se pudo completar.");
-                }
-
-            } catch (NumberFormatException ex) {
-                mostrarError("Error: Los valores deben ser números enteros.");
-            } catch (SQLException ex) {
-                mostrarError("Error al asignar profesor al curso: " + ex.getMessage());
+            if (profesor == null || curso == null) {
+                mostrarError("Error: El curso o el profesor no existen.");
+                return;
             }
-        });
 
-        btnEliminarCursoProfesores.addActionListener(e -> {
-            try {
-                int idProfesorVal = Integer.parseInt(idProfesor.getText().trim());
-                int idCursoVal = Integer.parseInt(idCurso.getText().trim());
-                int anioVal = Integer.parseInt(anio.getText().trim());
-                int semestreVal = Integer.parseInt(semestre.getText().trim());
+            CursoProfesor nuevaAsignacion = new CursoProfesor(profesor, anioVal, semestreVal, curso);
+            cursoProfesoresService.inscribirCursoProfesor(nuevaAsignacion); // Se ejecuta sin evaluar un booleano
+            outputArea.append("✅ Profesor asignado al curso correctamente.\n");
 
-                if (cursoProfesoresService.eliminarCursoProfesor(idProfesorVal, idCursoVal, anioVal, semestreVal)) {
-                    ConexionBD.mostrarDatosBD_CURSO_PROFESORES();
-                    outputArea.append("Asignación eliminada correctamente.\n");
-                } else {
-                    mostrarError("Error: No se encontró la asignación a eliminar.");
-                }
+        } catch (NumberFormatException ex) {
+            mostrarError("❌ Error: Los valores deben ser números enteros.");
+        } catch (SQLException ex) {
+            mostrarError("❌ Error al asignar profesor al curso: " + ex.getMessage());
+        }
+    });
 
-            } catch (NumberFormatException ex) {
-                mostrarError("Error: Los valores deben ser números enteros.");
-            } catch (SQLException ex) {
-                mostrarError("Error al eliminar la asignación: " + ex.getMessage());
-            }
-        });
+    btnEliminarCursoProfesores.addActionListener(e -> {
+        try {
+            int idProfesorVal = Integer.parseInt(idProfesor.getText().trim());
+            int idCursoVal = Integer.parseInt(idCurso.getText().trim());
+            int anioVal = Integer.parseInt(anio.getText().trim());
+            int semestreVal = Integer.parseInt(semestre.getText().trim());
 
-        btnActualizarCursoProfesor.addActionListener(e -> {
-            try {
-                int idProfesorVal = Integer.parseInt(idProfesor.getText().trim());
-                int idCursoVal = Integer.parseInt(idCurso.getText().trim());
-                int nuevoAnio = Integer.parseInt(anio.getText().trim());
-                int nuevoSemestre = Integer.parseInt(semestre.getText().trim());
+            cursoProfesoresService.eliminarCursoProfesor(idProfesorVal, idCursoVal, anioVal, semestreVal);
+            outputArea.append("✅ Asignación eliminada correctamente.\n");
 
-                if (cursoProfesoresService.actualizarCursoProfesor(idProfesorVal, idCursoVal, nuevoAnio, nuevoSemestre)) {
-                     ConexionBD.mostrarDatosBD_CURSO_PROFESORES();
-                    outputArea.append("Asignación actualizada correctamente.\n");
-                } else {
-                    mostrarError("Error: No existe una asignación para actualizar.");
-                }
+        } catch (NumberFormatException ex) {
+            mostrarError("❌ Error: Los valores deben ser números enteros.");
+        } catch (SQLException ex) {
+            mostrarError("❌ Error al eliminar la asignación: " + ex.getMessage());
+        }
+    });
 
-            } catch (NumberFormatException ex) {
-                mostrarError("Error: Los valores deben ser números enteros.");
-            } catch (SQLException ex) {
-                mostrarError("Error al actualizar la asignación: " + ex.getMessage());
-            }
-        });
+    btnActualizarCursoProfesor.addActionListener(e -> {
+        try {
+            int idProfesorVal = Integer.parseInt(idProfesor.getText().trim());
+            int idCursoVal = Integer.parseInt(idCurso.getText().trim());
+            int nuevoAnio = Integer.parseInt(anio.getText().trim());
+            int nuevoSemestre = Integer.parseInt(semestre.getText().trim());
 
-        panel.add(new JLabel("ID Profesor:"));
-        panel.add(idProfesor);
-        panel.add(new JLabel("ID Curso:"));
-        panel.add(idCurso);
-        panel.add(new JLabel("Año:"));
-        panel.add(anio);
-        panel.add(new JLabel("Semestre:"));
-        panel.add(semestre);
-        panel.add(btnGuardarCursoProfesor);
-        panel.add(btnEliminarCursoProfesores);
-        panel.add(btnActualizarCursoProfesor);
-        panel.add(new JScrollPane(outputArea));
+            cursoProfesoresService.actualizarCursoProfesor(idProfesorVal, idCursoVal, nuevoAnio, nuevoSemestre);
+            outputArea.append("✅ Asignación actualizada correctamente.\n");
 
-        return panel;
-    }
+        } catch (NumberFormatException ex) {
+            mostrarError("❌ Error: Los valores deben ser números enteros.");
+        } catch (SQLException ex) {
+            mostrarError("❌ Error al actualizar la asignación: " + ex.getMessage());
+        }
+    });
 
+    panel.add(new JLabel("ID Profesor:"));
+    panel.add(idProfesor);
+    panel.add(new JLabel("ID Curso:"));
+    panel.add(idCurso);
+    panel.add(new JLabel("Año:"));
+    panel.add(anio);
+    panel.add(new JLabel("Semestre:"));
+    panel.add(semestre);
+    panel.add(btnGuardarCursoProfesor);
+    panel.add(btnEliminarCursoProfesores);
+    panel.add(btnActualizarCursoProfesor);
+    panel.add(new JScrollPane(outputArea));
 
+    return panel;
+}
 
 private Curso obtenerCursoPorID(int idCurso) {
     try (Connection conexion = ConexionBD.conectar()) {

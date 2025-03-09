@@ -20,29 +20,30 @@ public class PersonaService {
         }
     }
 
-    public boolean eliminarPersona(int idPersona) throws SQLException {
-        try (Connection conexion = ConexionBD.conectar()) {
-            return new PersonaDAO(conexion).eliminarPersona(idPersona);
-        }
+    public void eliminarPersona(int idPersona) throws SQLException {
+    try (Connection conexion = ConexionBD.conectar()) {
+        new PersonaDAO(conexion).eliminarPersona(idPersona);
     }
+}
 
-    public boolean actualizarPersona(int idPersona) throws SQLException {
-        try (Connection conexion = ConexionBD.conectar()) {
-            return new PersonaDAO(conexion).actualizarPersona(idPersona);
-        }
+public void actualizarPersona(int idPersona) throws SQLException {
+    try (Connection conexion = ConexionBD.conectar()) {
+        new PersonaDAO(conexion).actualizarPersona(idPersona);
     }
+}
 
-    public boolean existePersona(int idPersona) throws SQLException {
-        try (Connection conexion = ConexionBD.conectar()) {
-            return new PersonaDAO(conexion).existePersona(idPersona);
-        }
+public boolean existePersona(int idPersona) throws SQLException {
+    try (Connection conexion = ConexionBD.conectar()) {
+        return new PersonaDAO(conexion).existePersona(idPersona);
     }
+}
 
-    public boolean inscribirPersona(int idPersona) throws SQLException {
-        try (Connection conexion = ConexionBD.conectar()) {
-            return new PersonaDAO(conexion).inscribirPersona(idPersona);
-        }
+public void inscribirPersona(int idPersona) throws SQLException {
+    try (Connection conexion = ConexionBD.conectar()) {
+        new PersonaDAO(conexion).inscribirPersona(idPersona);
     }
+}
+
 
     public Persona obtenerPersonaPorID(int idPersona) throws SQLException {
         try (Connection conexion = ConexionBD.conectar()) {

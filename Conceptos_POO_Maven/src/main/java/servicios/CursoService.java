@@ -9,7 +9,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class CursoService {
+    private Connection conexion;
+    private CursoDAO cursoDAO;
+ 
 
+    
     public void guardarCurso(int idCurso, String nombre, Programa programa, boolean activo) throws SQLException {
         if (nombre.isEmpty()) {
             throw new IllegalArgumentException("El nombre del curso no puede estar vacío.");
@@ -27,4 +31,8 @@ public class CursoService {
             ConexionBD.mostrarDatosBD_CURSO();
         }
     }
+    
+    
+    
+    
 }

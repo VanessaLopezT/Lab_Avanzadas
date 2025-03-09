@@ -17,6 +17,7 @@ import modelo.Programa;
  * @author VANESA
  */
 public class CursoProfesoresDAO {
+    
     public CursoProfesor buscarCursoProfesor(int profesorID, int cursoID) {
         String sql = "SELECT * FROM curso_profesores WHERE profesor_id = ? AND curso_id = ?;";
         
@@ -40,71 +41,89 @@ public class CursoProfesoresDAO {
         return null;
     }
 
-    public boolean inscribir(CursoProfesor cursoProfesor) {
-        String sqlBuscar = "SELECT * FROM curso_profesores WHERE profesor_id = ? AND curso_id = ? AND anio = ? AND semestre = ?";
-        String sqlInsertar = "INSERT INTO curso_profesores (profesor_id, curso_id, anio, semestre) VALUES (?, ?, ?, ?)";
+    public void inscribir(CursoProfesor cursoProfesor) {
+    String sqlBuscar = "SELECT * FROM curso_profesores WHERE profesor_id = ? AND curso_id = ? AND anio = ? AND semestre = ?";
+    String sqlInsertar = "INSERT INTO curso_profesores (profesor_id, curso_id, anio, semestre) VALUES (?, ?, ?, ?)";
 
-        try (Connection conexion = ConexionBD.conectar();
-             PreparedStatement pstmtBuscar = conexion.prepareStatement(sqlBuscar);
-             PreparedStatement pstmtInsertar = conexion.prepareStatement(sqlInsertar)) {
+    try (Connection conexion = ConexionBD.conectar();
+         PreparedStatement pstmtBuscar = conexion.prepareStatement(sqlBuscar);
+         PreparedStatement pstmtInsertar = conexion.prepareStatement(sqlInsertar)) {
 
-            pstmtBuscar.setInt(1, cursoProfesor.getProfesor().getID());
-            pstmtBuscar.setInt(2, cursoProfesor.getCurso().getID());
-            pstmtBuscar.setInt(3, cursoProfesor.getAño());
-            pstmtBuscar.setInt(4, cursoProfesor.getSemestre());
+        pstmtBuscar.setInt(1, cursoProfesor.getProfesor().getID());
+        pstmtBuscar.setInt(2, cursoProfesor.getCurso().getID());
+        pstmtBuscar.setInt(3, cursoProfesor.getAño());
+        pstmtBuscar.setInt(4, cursoProfesor.getSemestre());
 
-            ResultSet rs = pstmtBuscar.executeQuery();
-            if (rs.next()) {
-                return false;
-            }
-
-            pstmtInsertar.setInt(1, cursoProfesor.getProfesor().getID());
-            pstmtInsertar.setInt(2, cursoProfesor.getCurso().getID());
-            pstmtInsertar.setInt(3, cursoProfesor.getAño());
-            pstmtInsertar.setInt(4, cursoProfesor.getSemestre());
-            ConexionBD.mostrarDatosBD_CURSO_PROFESORES();
-            return pstmtInsertar.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.err.println("❌ Error al inscribir al profesor: " + e.getMessage());
-            return false;
+        ResultSet rs = pstmtBuscar.executeQuery();
+        if (rs.next()) {
+            System.out.println("⚠️ La asignación ya existe.");
+            return;
         }
-    }
 
-    public boolean eliminar(int profesorID, int cursoID, int anio, int semestre) {
-        String sql = "DELETE FROM curso_profesores WHERE profesor_id = ? AND curso_id = ? AND anio = ? AND semestre = ?";
+        pstmtInsertar.setInt(1, cursoProfesor.getProfesor().getID());
+        pstmtInsertar.setInt(2, cursoProfesor.getCurso().getID());
+        pstmtInsertar.setInt(3, cursoProfesor.getAño());
+        pstmtInsertar.setInt(4, cursoProfesor.getSemestre());
 
-        try (Connection conexion = ConexionBD.conectar();
-             PreparedStatement pstmt = conexion.prepareStatement(sql)) {
-
-            pstmt.setInt(1, profesorID);
-            pstmt.setInt(2, cursoID);
-            pstmt.setInt(3, anio);
-            pstmt.setInt(4, semestre);
+        int filasAfectadas = pstmtInsertar.executeUpdate();
+        if (filasAfectadas > 0) {
             ConexionBD.mostrarDatosBD_CURSO_PROFESORES();
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.err.println("❌ Error al eliminar al profesor: " + e.getMessage());
-            return false;
+            System.out.println("✅ Profesor asignado al curso correctamente.");
         }
+
+    } catch (SQLException e) {
+        System.err.println("❌ Error al inscribir al profesor: " + e.getMessage());
     }
+}
 
-    public boolean actualizar(int profesorID, int cursoID, int nuevoAnio, int nuevoSemestre) {
-        String sqlActualizar = "UPDATE curso_profesores SET anio = ?, semestre = ? WHERE profesor_id = ? AND curso_id = ?";
+public void eliminar(int profesorID, int cursoID, int anio, int semestre) {
+    String sql = "DELETE FROM curso_profesores WHERE profesor_id = ? AND curso_id = ? AND anio = ? AND semestre = ?";
 
-        try (Connection conexion = ConexionBD.conectar();
-             PreparedStatement pstmtActualizar = conexion.prepareStatement(sqlActualizar)) {
+    try (Connection conexion = ConexionBD.conectar();
+         PreparedStatement pstmt = conexion.prepareStatement(sql)) {
 
-            pstmtActualizar.setInt(1, nuevoAnio);
-            pstmtActualizar.setInt(2, nuevoSemestre);
-            pstmtActualizar.setInt(3, profesorID);
-            pstmtActualizar.setInt(4, cursoID);
+        pstmt.setInt(1, profesorID);
+        pstmt.setInt(2, cursoID);
+        pstmt.setInt(3, anio);
+        pstmt.setInt(4, semestre);
+
+        int filasAfectadas = pstmt.executeUpdate();
+        if (filasAfectadas > 0) {
             ConexionBD.mostrarDatosBD_CURSO_PROFESORES();
-            return pstmtActualizar.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.err.println("❌ Error al actualizar: " + e.getMessage());
-            return false;
+            System.out.println("✅ Asignación eliminada correctamente.");
+        } else {
+            System.out.println("⚠️ No se encontró la asignación a eliminar.");
         }
+
+    } catch (SQLException e) {
+        System.err.println("❌ Error al eliminar al profesor: " + e.getMessage());
     }
+}
+
+public void actualizar(int profesorID, int cursoID, int nuevoAnio, int nuevoSemestre) {
+    String sqlActualizar = "UPDATE curso_profesores SET anio = ?, semestre = ? WHERE profesor_id = ? AND curso_id = ?";
+
+    try (Connection conexion = ConexionBD.conectar();
+         PreparedStatement pstmtActualizar = conexion.prepareStatement(sqlActualizar)) {
+
+        pstmtActualizar.setInt(1, nuevoAnio);
+        pstmtActualizar.setInt(2, nuevoSemestre);
+        pstmtActualizar.setInt(3, profesorID);
+        pstmtActualizar.setInt(4, cursoID);
+
+        int filasAfectadas = pstmtActualizar.executeUpdate();
+        if (filasAfectadas > 0) {
+            ConexionBD.mostrarDatosBD_CURSO_PROFESORES();
+            System.out.println("✅ Asignación actualizada correctamente.");
+        } else {
+            System.out.println("⚠️ No existe una asignación para actualizar.");
+        }
+
+    } catch (SQLException e) {
+        System.err.println("❌ Error al actualizar la asignación: " + e.getMessage());
+    }
+}
+
 
     public List<CursoProfesor> cargarDatosBD() {
         List<CursoProfesor> listado = new ArrayList<>();
