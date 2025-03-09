@@ -14,6 +14,7 @@ import java.sql.SQLException;
  * @author VANESA
  */
 public class CursosInscritosDAO {
+
     public static void inscribir(Inscripcion inscripcion) {
         String sql = "INSERT INTO cursos_inscritos (inscripcion_id, estudiante_id) VALUES (?, ?)";
 
@@ -24,6 +25,8 @@ public class CursosInscritosDAO {
             stmt.setInt(2, inscripcion.getEstudiante().getID());
 
             int filasAfectadas = stmt.executeUpdate();
+            System.out.println("inscribiendo");
+            ConexionBD.mostrarDatosBD_CURSOS_INSCRITOS();
             if (filasAfectadas < 0) {
                 System.out.println("No se pudo inscribir al estudiante.");
             }
@@ -88,10 +91,10 @@ public class CursosInscritosDAO {
 
                 pstmtEliminar.setInt(1, idRegistro);
                 int filasAfectadas = pstmtEliminar.executeUpdate();
-
-                if (filasAfectadas > 0) {
-                    System.out.println("Inscripción eliminada correctamente.");
-                } else {
+                System.out.println("elimando");
+                ConexionBD.mostrarDatosBD_CURSOS_INSCRITOS();
+                if (filasAfectadas < 0) {
+                    
                     System.out.println("No se pudo eliminar la inscripción.");
                 }
             } else {
@@ -121,6 +124,8 @@ public class CursosInscritosDAO {
                 pstmtActualizar.setInt(2, idRegistro);
 
                 int filasAfectadas = pstmtActualizar.executeUpdate();
+                System.out.println("actualizando");
+                ConexionBD.mostrarDatosBD_CURSOS_INSCRITOS();
                 if (filasAfectadas > 0) {
                     System.out.println("Inscripción actualizada con el nuevo curso (ID: " + nuevoCursoID + ").");
                 } else {

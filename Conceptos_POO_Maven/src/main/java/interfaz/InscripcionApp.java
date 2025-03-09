@@ -28,17 +28,29 @@ import java.sql.Statement;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import servicios.CursoProfesorService;
+import servicios.CursoProfesoresService;
+import servicios.CursoService;
+import servicios.CursosInscritosService;
 import servicios.EstudianteService;
+import servicios.FacultadService;
 import servicios.InscripcionService;
 import servicios.PersonaService;
 import servicios.ProfesorService;
+import servicios.ProgramaService;
 
 public class InscripcionApp extends JFrame {
 private final PersonaService personaService = new PersonaService();
 private final ProfesorService profesorService = new ProfesorService();
 private final EstudianteService estudianteService = new EstudianteService();
 private final InscripcionService inscripcionService = new InscripcionService();
-        
+private final CursoProfesorService cursoProfesorService = new CursoProfesorService();
+private final CursoService cursoService = new CursoService();
+private final ProgramaService programaService = new ProgramaService();
+private final FacultadService facultadService = new FacultadService();
+private final CursosInscritosService cursosInscritosService = new CursosInscritosService();
+private final CursoProfesoresService cursoProfesoresService = new CursoProfesoresService();
+                           
 
 private JTextField idPersona, nombres, apellidos, email;
 private JTextField idProfesor, idCursoProfesor, anio, semestre, TipoContrato;
@@ -93,6 +105,7 @@ private JPanel crearPanelPersona() {
                 personaService.guardarPersona(id, nombresPersona.getText(), apellidosPersona.getText(), emailPersona.getText());
                 
                 outputArea.append("Persona guardada: " + id + "\n");
+                ConexionBD.mostrarDatosBD_PERSONA();
             } catch (NumberFormatException ex) {
                 mostrarError("Error: El ID debe ser un número entero.");
             } catch (IllegalArgumentException ex) {
@@ -173,6 +186,7 @@ private void eliminarPersona(int idPersona) {
             boolean eliminada = personaService.eliminarPersona(idPersona);
             if (eliminada) {
                 outputArea.append("Persona eliminada correctamente de inscripciones.\n");
+                ConexionBD.mostrarDatosBD_INSCRIPCIONES_PERSONAS();
             } else {
                 mostrarError("La persona no está en inscripciones_personas.");
             }
@@ -186,6 +200,7 @@ private void actualizarPersona(int idPersona) {
             boolean actualizada = personaService.actualizarPersona(idPersona);
             if (actualizada) {
                 outputArea.append("Persona actualizada correctamente en inscripciones.\n");
+                ConexionBD.mostrarDatosBD_INSCRIPCIONES_PERSONAS();
             } else {
                 mostrarError("La persona no está registrada en la tabla PERSONA.");
             }
@@ -199,6 +214,7 @@ private void inscribirPersona(int idPersona) {
             boolean inscrita = personaService.inscribirPersona(idPersona);
             if (inscrita) {
                 outputArea.append("Persona agregada a Inscripción correctamente.\n");
+                ConexionBD.mostrarDatosBD_INSCRIPCIONES_PERSONAS();
             } else {
                 mostrarError("No se pudo inscribir a la persona. Verifique si está registrada en la base de datos.");
             }
@@ -377,13 +393,396 @@ private JPanel crearPanelInscripcion() {
     }
 
 
+private JPanel crearPanelCursoProfesor() {
+        JPanel panel = new JPanel(new GridLayout(5, 2));
+
+        JTextField idCurso = new JTextField("912");
+        JTextField idProfesor = new JTextField("5789");
+        JTextField anio = new JTextField("2024");
+        JTextField semestre = new JTextField("2");
+        JButton btnGuardarCursoProfesor = new JButton("Asignar Profesor");
+
+        btnGuardarCursoProfesor.addActionListener(e -> {
+            try {
+                int idCursoVal = Integer.parseInt(idCurso.getText().trim());
+                int idProfesorVal = Integer.parseInt(idProfesor.getText().trim());
+                int anioVal = Integer.parseInt(anio.getText().trim());
+                int semestreVal = Integer.parseInt(semestre.getText().trim());
+
+                if (semestreVal < 1 || semestreVal > 2) {
+                    mostrarError("Error: El semestre debe ser 1 o 2.");
+                    return;
+                }
+
+                Curso curso = obtenerCursoPorID(idCursoVal);
+                if (curso == null) {
+                    mostrarError("Error: No existe un curso con ese ID en la base de datos.");
+                    return;
+                }
+
+                Profesor profesor = obtenerProfesorPorID(idProfesorVal);
+                if (profesor == null) {
+                    mostrarError("Error: No existe un profesor con ese ID en la base de datos.");
+                    return;
+                }
+
+                cursoProfesorService.asignarProfesorACurso(curso, anioVal, semestreVal, profesor);
+                outputArea.append("Asignación guardada: Curso " + curso.getID() + " - Profesor " + profesor.getID() + "\n");
+
+            } catch (NumberFormatException ex) {
+                mostrarError("Error: Los ID, año y semestre deben ser números enteros.");
+            } catch (IllegalArgumentException ex) {
+                mostrarError(ex.getMessage());
+            } catch (SQLException ex) {
+                mostrarError("Error al guardar la asignación: " + ex.getMessage());
+            }
+        });
+
+        panel.add(new JLabel("ID Curso (O déjelo por defecto):"));
+        panel.add(idCurso);
+        panel.add(new JLabel("ID Profesor (O déjelo por defecto):"));
+        panel.add(idProfesor);
+        panel.add(new JLabel("Año:"));
+        panel.add(anio);
+        panel.add(new JLabel("Semestre:"));
+        panel.add(semestre);
+        panel.add(btnGuardarCursoProfesor);
+        panel.add(new JScrollPane(outputArea));
+
+        return panel;
+    }
+
+
+private JPanel crearPanelCurso() {
+        JPanel panel = new JPanel(new GridLayout(6, 2));
+
+        JTextField idCurso = new JTextField("4411");
+        JTextField nombreCurso = new JTextField("Matemáticas");
+        JTextField idPrograma = new JTextField("603");
+        JCheckBox activoCurso = new JCheckBox("Activo", true);
+        JButton btnGuardarCurso = new JButton("Guardar Curso");
+
+        btnGuardarCurso.addActionListener(e -> {
+            try {
+                int id = Integer.parseInt(idCurso.getText().trim());
+                String nombre = nombreCurso.getText().trim();
+                int idProgramaVal = Integer.parseInt(idPrograma.getText().trim());
+                boolean activo = activoCurso.isSelected();
+
+                if (nombre.isEmpty()) {
+                    mostrarError("Error: El nombre del curso no puede estar vacío.");
+                    return;
+                }
+
+                Programa programa = obtenerProgramaPorID(idProgramaVal);
+                if (programa == null) {
+                    mostrarError("Error: No existe un programa con ese ID en la base de datos.");
+                    return;
+                }
+
+                cursoService.guardarCurso(id, nombre, programa, activo);
+                outputArea.append("Curso guardado: " + id + "\n");
+
+            } catch (NumberFormatException ex) {
+                mostrarError("Error: Los ID deben ser números enteros.");
+            } catch (IllegalArgumentException ex) {
+                mostrarError(ex.getMessage());
+            } catch (SQLException ex) {
+                mostrarError("Error al guardar el curso: " + ex.getMessage());
+            }
+        });
+
+        panel.add(new JLabel("Ingrese ID Curso:"));
+        panel.add(idCurso);
+        panel.add(new JLabel("Nombre:"));
+        panel.add(nombreCurso);
+        panel.add(new JLabel("ID Programa (O Déjelo por defecto):"));
+        panel.add(idPrograma);
+        panel.add(new JLabel("Activo:"));
+        panel.add(activoCurso);
+        panel.add(btnGuardarCurso);
+        panel.add(new JScrollPane(outputArea));
+
+        return panel;
+    }
+
+private JPanel crearPanelPrograma() {
+        JPanel panel = new JPanel(new GridLayout(6, 2));
+        JTextField idPrograma = new JTextField("1188");
+        JTextField nombrePrograma = new JTextField("Ingeniería de Software");
+        JTextField duracionPrograma = new JTextField("8");
+        JTextField idFacultad = new JTextField("1234");
+        JButton btnGuardarPrograma = new JButton("Guardar Programa");
+
+        btnGuardarPrograma.addActionListener(e -> {
+            try {
+                int id = Integer.parseInt(idPrograma.getText().trim());
+                String nombre = nombrePrograma.getText().trim();
+                double duracion = Double.parseDouble(duracionPrograma.getText().trim());
+                int idFacultadVal = Integer.parseInt(idFacultad.getText().trim());
+                Date fechaRegistro = new Date();
+
+                if (nombre.isEmpty()) {
+                    mostrarError("Error: El nombre no puede estar vacío.");
+                    return;
+                }
+
+                Facultad facultad = obtenerFacultadPorID(idFacultadVal);
+                if (facultad == null) {
+                    mostrarError("Error: No existe una facultad con ese ID en la base de datos.");
+                    return;
+                }
+
+                programaService.guardarPrograma(id, nombre, duracion, fechaRegistro, facultad);
+                outputArea.append("Programa guardado: " + id + "\n");
+
+            } catch (NumberFormatException ex) {
+                mostrarError("Error: Los ID y la duración deben ser números.");
+            } catch (IllegalArgumentException ex) {
+                mostrarError(ex.getMessage());
+            } catch (SQLException ex) {
+                mostrarError("Error al guardar el programa: " + ex.getMessage());
+            }
+        });
+
+        panel.add(new JLabel("Ingrese ID Programa:"));
+        panel.add(idPrograma);
+        panel.add(new JLabel("Nombre:"));
+        panel.add(nombrePrograma);
+        panel.add(new JLabel("Duración (semestres):"));
+        panel.add(duracionPrograma);
+        panel.add(new JLabel("ID Facultad (O Déjelo por defecto):"));
+        panel.add(idFacultad);
+        panel.add(btnGuardarPrograma);
+        panel.add(new JScrollPane(outputArea));
+
+        return panel;
+    }
+
+private JPanel crearPanelFacultad() {
+        JPanel panel = new JPanel(new GridLayout(6, 2));
+
+        JTextField idFacultad = new JTextField("8271");
+        JTextField nombreFacultad = new JTextField("Facultad de Economía");
+        JTextField idDecano = new JTextField("7392");
+        JButton btnGuardarFacultad = new JButton("Guardar Facultad");
+
+        btnGuardarFacultad.addActionListener(e -> {
+            try {
+                int id = Integer.parseInt(idFacultad.getText().trim());
+                int idDecanoVal = Integer.parseInt(idDecano.getText().trim());
+                String nombre = nombreFacultad.getText().trim();
+
+                if (nombre.isEmpty()) {
+                    mostrarError("Error: El nombre no puede estar vacío.");
+                    return;
+                }
+
+                Persona decano = obtenerPersonaPorID(idDecanoVal);
+                if (decano == null) {
+                    mostrarError("Error: No existe una persona con ese ID en la base de datos.");
+                    return;
+                }
+
+                facultadService.guardarFacultad(id, nombre, decano);
+                outputArea.append("Facultad guardada: " + id + "\n");
+
+            } catch (NumberFormatException ex) {
+                mostrarError("Error: Los ID deben ser números enteros.");
+            } catch (IllegalArgumentException ex) {
+                mostrarError(ex.getMessage());
+            } catch (SQLException ex) {
+                mostrarError("Error al guardar la facultad: " + ex.getMessage());
+            }
+        });
+
+        panel.add(new JLabel("Ingrese ID Facultad:"));
+        panel.add(idFacultad);
+        panel.add(new JLabel("Nombre:"));
+        panel.add(nombreFacultad);
+        panel.add(new JLabel("ID Decano (O Déjelo por defecto):"));
+        panel.add(idDecano);
+        panel.add(btnGuardarFacultad);
+        panel.add(new JScrollPane(outputArea));
+
+        return panel;
+    }
+
+
+private JPanel crearPanelCursosInscritos() {
+        JPanel panel = new JPanel(new GridLayout(6, 2));
+
+        JTextField idCurso = new JTextField("912");
+        JTextField idEstudiante = new JTextField("1123981625");
+        JButton btnGuardarInscripcion = new JButton("Guardar Inscripción");
+        JButton btnEliminarInscripcion = new JButton("Eliminar Inscripción");
+        JButton btnActualizarInscripcion = new JButton("Actualizar Inscripción");
+
+        btnGuardarInscripcion.addActionListener(e -> {
+            try {
+                int idCursoVal = Integer.parseInt(idCurso.getText().trim());
+                int idEstudianteVal = Integer.parseInt(idEstudiante.getText().trim());
+
+                Inscripcion inscripcion = obtenerInscripcionPorCursoYEstudiante(idCursoVal, idEstudianteVal);
+                if (inscripcion == null) {
+                    mostrarError("Error: No existe una inscripción para este curso y estudiante.");
+                    return;
+                }
+
+                cursosInscritosService.inscribirEnCursos(inscripcion);
+                outputArea.append("Curso inscrito correctamente.\n");
+
+            } catch (NumberFormatException ex) {
+                mostrarError("Error: Los ID deben ser números enteros.");
+            } catch (SQLException ex) {
+                mostrarError("Error al inscribir en cursos: " + ex.getMessage());
+            }
+        });
+
+        btnEliminarInscripcion.addActionListener(e -> {
+            try {
+                int idCursoVal = Integer.parseInt(idCurso.getText().trim());
+                int idEstudianteVal = Integer.parseInt(idEstudiante.getText().trim());
+
+                cursosInscritosService.eliminarInscripcion(idCursoVal, idEstudianteVal);
+                outputArea.append("Inscripción eliminada correctamente.\n");
+
+            } catch (NumberFormatException ex) {
+                mostrarError("Error: Los ID deben ser números enteros.");
+            } catch (SQLException ex) {
+                mostrarError("Error al eliminar la inscripción: " + ex.getMessage());
+            }
+        });
+
+        btnActualizarInscripcion.addActionListener(e -> {
+            try {
+                int idCursoVal = Integer.parseInt(idCurso.getText().trim());
+                int idEstudianteVal = Integer.parseInt(idEstudiante.getText().trim());
+
+                cursosInscritosService.actualizarInscripcion(idCursoVal, idEstudianteVal, idCursoVal);
+                outputArea.append("Inscripción actualizada correctamente.\n");
+
+            } catch (NumberFormatException ex) {
+                mostrarError("Error: Los ID deben ser números enteros.");
+            } catch (SQLException ex) {
+                mostrarError("Error al actualizar la inscripción: " + ex.getMessage());
+            }
+        });
+
+        panel.add(new JLabel("ID Curso:"));
+        panel.add(idCurso);
+        panel.add(new JLabel("ID Estudiante:"));
+        panel.add(idEstudiante);
+        panel.add(btnGuardarInscripcion);
+        panel.add(btnEliminarInscripcion);
+        panel.add(btnActualizarInscripcion);
+        panel.add(new JScrollPane(outputArea));
+
+        return panel;
+    }
+
+   
 
 
 
+private JPanel crearPanelCursoProfesores() {
+        JPanel panel = new JPanel(new GridLayout(6, 2));
 
+        JTextField idProfesor = new JTextField("9176");
+        JTextField idCurso = new JTextField("912");
+        JTextField anio = new JTextField("2024");
+        JTextField semestre = new JTextField("2");
+        JButton btnGuardarCursoProfesor = new JButton("Guardar Asignación");
+        JButton btnEliminarCursoProfesores = new JButton("Eliminar Asignación");
+        JButton btnActualizarCursoProfesor = new JButton("Actualizar Asignación");
 
+        btnGuardarCursoProfesor.addActionListener(e -> {
+            try {
+                int idProfesorVal = Integer.parseInt(idProfesor.getText().trim());
+                int idCursoVal = Integer.parseInt(idCurso.getText().trim());
+                int anioVal = Integer.parseInt(anio.getText().trim());
+                int semestreVal = Integer.parseInt(semestre.getText().trim());
 
+                Profesor profesor = obtenerProfesorPorID(idProfesorVal);
+                Curso curso = obtenerCursoPorID(idCursoVal);
 
+                if (profesor == null || curso == null) {
+                    mostrarError("Error: El curso o el profesor no existen.");
+                    return;
+                }
+
+                CursoProfesor nuevaAsignacion = new CursoProfesor(profesor, anioVal, semestreVal, curso);
+                if (cursoProfesoresService.inscribirCursoProfesor(nuevaAsignacion)) {
+                     ConexionBD.mostrarDatosBD_CURSO_PROFESORES();
+                    outputArea.append("Profesor asignado al curso correctamente.\n");
+                } else {
+                    mostrarError("Error: La asignación ya existe o no se pudo completar.");
+                }
+
+            } catch (NumberFormatException ex) {
+                mostrarError("Error: Los valores deben ser números enteros.");
+            } catch (SQLException ex) {
+                mostrarError("Error al asignar profesor al curso: " + ex.getMessage());
+            }
+        });
+
+        btnEliminarCursoProfesores.addActionListener(e -> {
+            try {
+                int idProfesorVal = Integer.parseInt(idProfesor.getText().trim());
+                int idCursoVal = Integer.parseInt(idCurso.getText().trim());
+                int anioVal = Integer.parseInt(anio.getText().trim());
+                int semestreVal = Integer.parseInt(semestre.getText().trim());
+
+                if (cursoProfesoresService.eliminarCursoProfesor(idProfesorVal, idCursoVal, anioVal, semestreVal)) {
+                    ConexionBD.mostrarDatosBD_CURSO_PROFESORES();
+                    outputArea.append("Asignación eliminada correctamente.\n");
+                } else {
+                    mostrarError("Error: No se encontró la asignación a eliminar.");
+                }
+
+            } catch (NumberFormatException ex) {
+                mostrarError("Error: Los valores deben ser números enteros.");
+            } catch (SQLException ex) {
+                mostrarError("Error al eliminar la asignación: " + ex.getMessage());
+            }
+        });
+
+        btnActualizarCursoProfesor.addActionListener(e -> {
+            try {
+                int idProfesorVal = Integer.parseInt(idProfesor.getText().trim());
+                int idCursoVal = Integer.parseInt(idCurso.getText().trim());
+                int nuevoAnio = Integer.parseInt(anio.getText().trim());
+                int nuevoSemestre = Integer.parseInt(semestre.getText().trim());
+
+                if (cursoProfesoresService.actualizarCursoProfesor(idProfesorVal, idCursoVal, nuevoAnio, nuevoSemestre)) {
+                     ConexionBD.mostrarDatosBD_CURSO_PROFESORES();
+                    outputArea.append("Asignación actualizada correctamente.\n");
+                } else {
+                    mostrarError("Error: No existe una asignación para actualizar.");
+                }
+
+            } catch (NumberFormatException ex) {
+                mostrarError("Error: Los valores deben ser números enteros.");
+            } catch (SQLException ex) {
+                mostrarError("Error al actualizar la asignación: " + ex.getMessage());
+            }
+        });
+
+        panel.add(new JLabel("ID Profesor:"));
+        panel.add(idProfesor);
+        panel.add(new JLabel("ID Curso:"));
+        panel.add(idCurso);
+        panel.add(new JLabel("Año:"));
+        panel.add(anio);
+        panel.add(new JLabel("Semestre:"));
+        panel.add(semestre);
+        panel.add(btnGuardarCursoProfesor);
+        panel.add(btnEliminarCursoProfesores);
+        panel.add(btnActualizarCursoProfesor);
+        panel.add(new JScrollPane(outputArea));
+
+        return panel;
+    }
 
 
 
@@ -456,75 +855,6 @@ private Estudiante obtenerEstudiantePorID(int idEstudiante) {
 }
 
 
-
-
-
-private JPanel crearPanelCursoProfesor() {
-    JPanel panel = new JPanel(new GridLayout(5, 2));
-    
-    JTextField idCurso = new JTextField("912");
-    JTextField idProfesor = new JTextField("5789");
-    JTextField anio = new JTextField("2024");
-    JTextField semestre = new JTextField("2");
-    JButton btnGuardarCursoProfesor = new JButton("Asignar Profesor");
-
-    // Acción para guardar la asignación con validaciones
-    btnGuardarCursoProfesor.addActionListener(e -> {
-        try {
-            int idCursoVal = Integer.parseInt(idCurso.getText().trim());
-            int idProfesorVal = Integer.parseInt(idProfesor.getText().trim());
-            int anioVal = Integer.parseInt(anio.getText().trim());
-            int semestreVal = Integer.parseInt(semestre.getText().trim());
-
-            // Validación de semestre (solo 1 o 2)
-            if (semestreVal < 1 || semestreVal > 2) {
-                JOptionPane.showMessageDialog(panel, "Error: El semestre debe ser 1 o 2.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            Curso curso = obtenerCursoPorID(idCursoVal);
-            if (curso == null) {
-                JOptionPane.showMessageDialog(panel, "Error: No existe un curso con ese ID en la base de datos.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            Profesor profesor = obtenerProfesorPorID(idProfesorVal);
-            if (profesor == null) {
-                JOptionPane.showMessageDialog(panel, "Error: No existe un profesor con ese ID en la base de datos.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            guardarCursoProfesor(curso, anioVal, semestreVal, profesor);
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(panel, "Error: Los ID, año y semestre deben ser números enteros.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-        }
-    });
-
-    panel.add(new JLabel("ID Curso (O déjelo por defecto):")); panel.add(idCurso);
-    panel.add(new JLabel("ID Profesor (O déjelo por defecto):")); panel.add(idProfesor);
-    panel.add(new JLabel("Año:")); panel.add(anio);
-    panel.add(new JLabel("Semestre:")); panel.add(semestre);
-    panel.add(btnGuardarCursoProfesor);
-
-    return panel;
-}
-
-private void guardarCursoProfesor(Curso curso, int anio, int semestre, Profesor profesor) {
-    try (Connection conexion = ConexionBD.conectar()) {
-        CursoProfesor nuevaAsignacion = DAOFactory.crearCursoProfesor(profesor, anio, semestre, curso);
-        
-        CursoProfesorDAO cursoProfesorDAO=new CursoProfesorDAO(conexion);
-        cursoProfesorDAO.guardarCursoProfesorBD(conexion, nuevaAsignacion);
-     
-        ConexionBD.mostrarDatosBD_CURSO_PROFESOR();
-        outputArea.append("Asignación guardada: Curso " + curso.getID() + " - Profesor " + profesor.getID() + "\n");
-    } catch (SQLException e) {
-        mostrarError("Error al guardar la asignación: " + e.getMessage());
-    }
-}
-
-
-
 private Profesor obtenerProfesorPorID(int idProfesor) {
     try (Connection conexion = ConexionBD.conectar()) {
         // 🔹 Consulta combinando profesor y persona para obtener toda la información
@@ -553,53 +883,6 @@ private Profesor obtenerProfesorPorID(int idProfesor) {
     return null;
 }
 
-
-
-
-
-private JPanel crearPanelCurso() {
-    JPanel panel = new JPanel(new GridLayout(6, 2));
-    
-    JTextField idCurso = new JTextField("4411");
-    JTextField nombreCurso = new JTextField("Matemáticas");
-    JTextField idPrograma = new JTextField("603");
-    JCheckBox activoCurso = new JCheckBox("Activo", true);
-    JButton btnGuardarCurso = new JButton("Guardar Curso");
-
-    // Acción para guardar Curso con validación de ID y Programa existente
-    btnGuardarCurso.addActionListener(e -> {
-        try {
-            int id = Integer.parseInt(idCurso.getText().trim());
-            String nombre = nombreCurso.getText().trim();
-            int idProgramaVal = Integer.parseInt(idPrograma.getText().trim());
-            boolean activo = activoCurso.isSelected();
-
-            if (nombre.isEmpty()) {
-                JOptionPane.showMessageDialog(panel, "Error: El nombre del curso no puede estar vacío.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            Programa programa = obtenerProgramaPorID(idProgramaVal);
-            if (programa == null) {
-                JOptionPane.showMessageDialog(panel, "Error: No existe un programa con ese ID en la base de datos.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            guardarCurso(id, nombre, programa, activo);
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(panel, "Error: Los ID deben ser números enteros.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-        }
-    });
-    
-    panel.add(new JLabel("Ingrese ID Curso:")); panel.add(idCurso);
-    panel.add(new JLabel("Nombre:")); panel.add(nombreCurso);
-    panel.add(new JLabel("ID Programa (O Déjelo por defecto):")); panel.add(idPrograma);
-    panel.add(new JLabel("Activo:")); panel.add(activoCurso);
-    panel.add(btnGuardarCurso);
-    
-    return panel;
-}
-
 private Programa obtenerProgramaPorID(int idPrograma) {
     try (Connection conexion = ConexionBD.conectar()) {
         String sql = "SELECT * FROM programa WHERE id = ?";
@@ -623,62 +906,10 @@ private Programa obtenerProgramaPorID(int idPrograma) {
     return null;
 }
 
-private void guardarCurso(int idCurso, String nombre, Programa programa, boolean activo) {
-    try (Connection conexion = ConexionBD.conectar()) {
-        Curso nuevoCurso = DAOFactory.crearCurso(idCurso, nombre, programa, activo);
-        CursoDAO cursoDAO = new CursoDAO(conexion);
-        cursoDAO.guardarCursoBD(conexion, nuevoCurso);
-        ConexionBD.mostrarDatosBD_CURSO();
-        outputArea.append("Curso guardado: " + idCurso + "\n");
-    } catch (SQLException e) {
-        mostrarError("Error al guardar el curso: " + e.getMessage());
-    }
-}
 
 
-private JPanel crearPanelPrograma() {
-    JPanel panel = new JPanel(new GridLayout(6, 2));
-    
-    JTextField idPrograma = new JTextField("1188");
-    JTextField nombrePrograma = new JTextField("Ingeniería de Software");
-    JTextField duracionPrograma = new JTextField("8");
-    JTextField idFacultad = new JTextField("1234");
-    JButton btnGuardarPrograma = new JButton("Guardar Programa");
 
-    // Acción para guardar Programa con validación de ID y Facultad existente
-    btnGuardarPrograma.addActionListener(e -> {
-        try {
-            int id = Integer.parseInt(idPrograma.getText().trim());
-            String nombre = nombrePrograma.getText().trim();
-            double duracion = Double.parseDouble(duracionPrograma.getText().trim());
-            int idFacultadVal = Integer.parseInt(idFacultad.getText().trim());
-            Date fechaRegistro = new Date();
 
-            if (nombre.isEmpty()) {
-                JOptionPane.showMessageDialog(panel, "Error: El nombre no puede estar vacío.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            Facultad facultad = obtenerFacultadPorID(idFacultadVal);
-            if (facultad == null) {
-                JOptionPane.showMessageDialog(panel, "Error: No existe una facultad con ese ID en la base de datos.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            guardarPrograma(id, nombre, duracion, fechaRegistro, facultad);
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(panel, "Error: Los ID y la duración deben ser números.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-        }
-    });
-    
-    panel.add(new JLabel("Ingrese ID Programa:")); panel.add(idPrograma);
-    panel.add(new JLabel("Nombre:")); panel.add(nombrePrograma);
-    panel.add(new JLabel("Duración (semestres):")); panel.add(duracionPrograma);
-    panel.add(new JLabel("ID Facultad (O Dejelo por defecto):")); panel.add(idFacultad);
-    panel.add(btnGuardarPrograma);
-    
-    return panel;
-}
 
 private Facultad obtenerFacultadPorID(int idFacultad) {
     try (Connection conexion = ConexionBD.conectar()) {
@@ -701,62 +932,9 @@ private Facultad obtenerFacultadPorID(int idFacultad) {
     return null;
 }
 
-private void guardarPrograma(int idPrograma, String nombre, double duracion, Date registro, Facultad facultad) {
-    try (Connection conexion = ConexionBD.conectar()) {
-        Programa nuevoPrograma = DAOFactory.crearPrograma(idPrograma, nombre, duracion, registro, facultad);
-        
-        ProgramaDAO programaDAO = new ProgramaDAO(conexion);
-        programaDAO.guardarProgramaBD(conexion, nuevoPrograma);
-   
-     
-        ConexionBD.mostrarDatosBD_PROGRAMA();
-        outputArea.append("Programa guardado: " + idPrograma + "\n");
-    } catch (SQLException e) {
-        mostrarError("Error al guardar el programa: " + e.getMessage());
-    }
-}
 
 
-private JPanel crearPanelFacultad() {
-    JPanel panel = new JPanel(new GridLayout(4, 2));
-    
-    JTextField idFacultad = new JTextField("8271");
-    JTextField nombreFacultad = new JTextField("Facultad de Economia");
-    JTextField idDecano = new JTextField("7392");
-    JButton btnGuardarFacultad = new JButton("Guardar Facultad");
 
-    // Acción para guardar Facultad con validación de ID y decano existente
-    btnGuardarFacultad.addActionListener(e -> {
-        try {
-            int id = Integer.parseInt(idFacultad.getText().trim());
-            int idDecanoVal = Integer.parseInt(idDecano.getText().trim());
-            String nombre = nombreFacultad.getText().trim();
-
-            if (nombre.isEmpty()) {
-                JOptionPane.showMessageDialog(panel, "Error: El nombre no puede estar vacío.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            
-            Persona decano = obtenerPersonaPorID(idDecanoVal);
-            if (decano == null) {
-                JOptionPane.showMessageDialog(panel, "Error: No existe una persona con ese ID en la base de datos.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            
-            guardarFacultad(id, nombre, decano);
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(panel, "Error: Los ID deben ser números enteros.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-        }
-    });
-    
-    panel.add(new JLabel("Ingrese ID Facultad:")); panel.add(idFacultad);
-    panel.add(new JLabel("Nombre:")); panel.add(nombreFacultad);
-    panel.add(new JLabel("ID Decano(O Dejelo por defecto):" +
-"    ")); panel.add(idDecano);
-    panel.add(btnGuardarFacultad);
-    
-    return panel;
-}
 
 private Persona obtenerPersonaPorID(int idPersona) {
     try (Connection conexion = ConexionBD.conectar()) {
@@ -780,103 +958,8 @@ private Persona obtenerPersonaPorID(int idPersona) {
     return null;
 }
 
-private void guardarFacultad(int idFacultad, String nombreFacultad, Persona decano) {
-    try (Connection conexion = ConexionBD.conectar()) {
-        Facultad nuevaFacultad = DAOFactory.crearFacultad(idFacultad, nombreFacultad, decano);
-        
-        FacultadDAO facultadDAO = new FacultadDAO(conexion);
-        facultadDAO.guardarFacultadBD(conexion, nuevaFacultad);
-        
-        
-        ConexionBD.mostrarDatosBD_FACULTAD();
-        outputArea.append("Facultad guardada: " + idFacultad + "\n");
-    } catch (SQLException e) {
-        mostrarError("Error al guardar la facultad: " + e.getMessage());
-    }
-}
 
-private JPanel crearPanelCursosInscritos() { 
-    JPanel panel = new JPanel(new GridLayout(6, 2));
-    
-    JTextField idCurso = new JTextField("912");
-    JTextField idEstudiante = new JTextField("1123981625");
-    JButton btnGuardarInscripcion = new JButton("Guardar Inscripción");
-    JButton btnEliminarInscripcion = new JButton("Eliminar Inscripción");
-    JButton btnActualizarInscripcion = new JButton("Actualizar Inscripción");
-    // Acción para guardar inscripción en cursos_inscritos
-    btnGuardarInscripcion.addActionListener(e -> {
-        try {
-            int idCursoVal = Integer.parseInt(idCurso.getText().trim());
-            int idEstudianteVal = Integer.parseInt(idEstudiante.getText().trim());
 
-            // Validar si el estudiante existe
-            Estudiante estudiante = obtenerEstudiantePorID(idEstudianteVal);
-            if (estudiante == null) {
-                JOptionPane.showMessageDialog(panel, "Error: No existe un estudiante con ese ID.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // Buscar inscripción con ese curso y estudiante
-            Inscripcion inscripcion = obtenerInscripcionPorCursoYEstudiante(idCursoVal, idEstudianteVal);
-            if (inscripcion == null) {
-                JOptionPane.showMessageDialog(panel, "Error: No existe una inscripción para este curso y estudiante.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // Guardar inscripción en cursos_inscritos
-            inscribirEnCursos(inscripcion);
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(panel, "Error: Los ID deben ser números enteros.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-        }
-    });
-    
-    // Acción para eliminar inscripción en cursos_inscritos
-    btnEliminarInscripcion.addActionListener(e -> {
-        try {
-            int idCursoVal = Integer.parseInt(idCurso.getText().trim());
-            int idEstudianteVal = Integer.parseInt(idEstudiante.getText().trim());
-            
-            // Buscar inscripción con ese curso y estudiante
-            Inscripcion inscripcion = obtenerInscripcionPorCursoYEstudiante(idCursoVal, idEstudianteVal);
-            if (inscripcion == null) {
-                JOptionPane.showMessageDialog(panel, "Error: No existe una inscripción para este curso y estudiante.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            
-            // Eliminar inscripción
-            eliminarInscripcionDeCursos(inscripcion);
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(panel, "Error: Los ID deben ser números enteros.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-        }
-    });
-    
-    // Acción para actualizar inscripción en cursos_inscritos
-    btnActualizarInscripcion.addActionListener(e -> {
-        try {
-            int idCursoVal = Integer.parseInt(idCurso.getText().trim());
-            int idEstudianteVal = Integer.parseInt(idEstudiante.getText().trim());
-
-            // Validar si existe la inscripción antes de actualizar
-            if (!existeInscripcionEnCurso(idCursoVal, idEstudianteVal)) {
-                JOptionPane.showMessageDialog(panel, "Error: No existe una inscripción para actualizar.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // Actualizar inscripción
-            actualizarInscripcionCurso(idCursoVal, idEstudianteVal);
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(panel, "Error: Los ID deben ser números enteros.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-        }
-    });
-
-    panel.add(new JLabel("ID Curso:")); panel.add(idCurso);
-    panel.add(new JLabel("ID Estudiante:")); panel.add(idEstudiante);
-    panel.add(btnGuardarInscripcion);
-    panel.add(btnEliminarInscripcion);
-    panel.add(btnActualizarInscripcion);
-    
-    return panel;
-}
 
 
 private boolean existeInscripcionEnCurso(int idCurso, int idEstudiante) {
@@ -896,64 +979,7 @@ private boolean existeInscripcionEnCurso(int idCurso, int idEstudiante) {
 }
 
 
-private void actualizarInscripcionCurso(int idCurso, int idEstudiante) {
-    String sql = "UPDATE cursos_inscritos SET INSCRIPCION_ID = ?, ESTUDIANTE_ID = ? WHERE INSCRIPCION_ID = ? AND ESTUDIANTE_ID = ?";
-    try (Connection conexion = ConexionBD.conectar();
-         PreparedStatement stmt = conexion.prepareStatement(sql)) {
-        stmt.setInt(1, idCurso);
-        stmt.setInt(2, idEstudiante);
-        stmt.setInt(3, idCurso);
-        stmt.setInt(4, idEstudiante);
-        
-        int filasAfectadas = stmt.executeUpdate();
-        if (filasAfectadas > 0) {
-            ConexionBD.mostrarDatosBD_CURSOS_INSCRITOS();
-            outputArea.append("Inscripción actualizada correctamente.\n");
-        } else {
-            JOptionPane.showMessageDialog(null, "No se pudo actualizar la inscripción.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    } catch (SQLException e) {
-        mostrarError("Error al actualizar la inscripción: " + e.getMessage());
-    }
-}
 
-private boolean existeInscripcion(int idCurso, int idEstudiante) {
-    String sql = "SELECT COUNT(*) FROM cursos_inscritos WHERE curso_id = ? AND estudiante_id = ?";
-    try (Connection conexion = ConexionBD.conectar();
-         PreparedStatement stmt = conexion.prepareStatement(sql)) {
-        stmt.setInt(1, idCurso);
-        stmt.setInt(2, idEstudiante);
-        
-        try (ResultSet rs = stmt.executeQuery()) {
-            if (rs.next() && rs.getInt(1) > 0) {
-                return true;
-            }
-        }
-    } catch (SQLException e) {
-        mostrarError("Error al verificar la inscripción: " + e.getMessage());
-    }
-    return false;
-}
-
-
-private void eliminarInscripcionDeCursos(Inscripcion inscripcion) {
-    try (Connection conexion = ConexionBD.conectar()) {
-        String sql = "DELETE FROM cursos_inscritos WHERE inscripcion_id = ? AND estudiante_id = ?";
-        try (PreparedStatement pstmt = conexion.prepareStatement(sql)) {
-            pstmt.setInt(1, inscripcion.getCurso().getID());
-            pstmt.setInt(2, inscripcion.getEstudiante().getID());
-            int filasAfectadas = pstmt.executeUpdate();
-            if (filasAfectadas > 0) {
-                ConexionBD.mostrarDatosBD_CURSOS_INSCRITOS();
-                outputArea.append("Inscripcion de curso eliminado correctamente.\n");
-       } else {
-                JOptionPane.showMessageDialog(null, "No se encontró la inscripción para eliminar.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    } catch (SQLException e) {
-        mostrarError("Error al eliminar la inscripción: " + e.getMessage());
-    }
-}
 
 
 private Inscripcion obtenerInscripcionPorCursoYEstudiante(int cursoID, int estudianteID) {
@@ -980,139 +1006,7 @@ private Inscripcion obtenerInscripcionPorCursoYEstudiante(int cursoID, int estud
 }
 
 
-private void inscribirEnCursos(Inscripcion inscripcion) {
-    String sql = "INSERT INTO cursos_inscritos (inscripcion_id, estudiante_id) VALUES (?, ?)";
-    
-    try (Connection conexion = ConexionBD.conectar();
-         PreparedStatement stmt = conexion.prepareStatement(sql)) {
-        stmt.setInt(1, inscripcion.getCurso().getID());
-        stmt.setInt(2, inscripcion.getEstudiante().getID());
-        
-        int filasAfectadas = stmt.executeUpdate();
-        if (filasAfectadas > 0) {
-            ConexionBD.mostrarDatosBD_CURSOS_INSCRITOS();
-            outputArea.append("Curso inscrito correctamente.\n");
-             } 
-        else {
-            JOptionPane.showMessageDialog(null, "No se pudo inscribir al estudiante.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    } catch (SQLException e) {
-        mostrarError("Error al inscribir en cursos: " + e.getMessage());
-    }
-}
 
-private JPanel crearPanelCursoProfesores() {
-    JPanel panel = new JPanel(new GridLayout(5, 2));
-    
-    JTextField idProfesor = new JTextField("9176");
-    JTextField idCurso = new JTextField("912");
-    JButton btnGuardarCursoProfesor = new JButton("Guardar Asignación");
-    JButton btnEliminarCursoProfesores = new JButton("Eliminar Asignación");
-    JButton btnActualizarCursoProfesor = new JButton("Actualizar Asignación");
-   
-    // Acción para guardar asignación en curso_profesores con validaciones
-    btnGuardarCursoProfesor.addActionListener(e -> {
-        try {
-            int idProfesorVal = Integer.parseInt(idProfesor.getText().trim());
-            int idCursoVal = Integer.parseInt(idCurso.getText().trim());
-
-            // Validar si la combinación existe en curso_profesor
-            if (!existeCursoProfesor(idProfesorVal, idCursoVal)) {
-                JOptionPane.showMessageDialog(panel, "Error: No existe una asignación de este profesor a este curso en curso_profesor.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            
-            // Guardar asignación en curso_profesores
-            inscribirCursoProfesor(idProfesorVal, idCursoVal);
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(panel, "Error: Los valores deben ser números enteros.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-        }
-    });
-
-    // Acción para eliminar la asignación en curso_profesores
-    btnEliminarCursoProfesores.addActionListener(e -> {
-        try {
-            int idProfesorVal = Integer.parseInt(idProfesor.getText().trim());
-            int idCursoVal = Integer.parseInt(idCurso.getText().trim());
-
-            if (!existeCursoProfesores(idProfesorVal, idCursoVal)) {
-                JOptionPane.showMessageDialog(panel, "Error: No se encontró la asignación a eliminar en curso_profesores.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            eliminarCursoProfesores(idProfesorVal, idCursoVal);
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(panel, "Error: Los valores deben ser números enteros.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-        }
-    });
-    
-    // Acción para actualizar la asignación en curso_profesores
-    btnActualizarCursoProfesor.addActionListener(e -> {
-        try {
-            int idProfesorVal = Integer.parseInt(idProfesor.getText().trim());
-            int idCursoVal = Integer.parseInt(idCurso.getText().trim());
-            
-            if (!existeCursoProfesor(idProfesorVal, idCursoVal)) {
-                JOptionPane.showMessageDialog(panel, "Error: No existe una asignación para actualizar.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            actualizarCursoProfesor(idProfesorVal, idCursoVal);
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(panel, "Error: Los valores deben ser números enteros.", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-        }
-    });
-
-    panel.add(new JLabel("ID Profesor (O Dejar por defecto):")); panel.add(idProfesor);
-    panel.add(new JLabel("ID Curso (O Dejar por defecto):")); panel.add(idCurso);
-    panel.add(btnGuardarCursoProfesor);
-    panel.add(btnEliminarCursoProfesores);
-    panel.add(btnActualizarCursoProfesor);
-    
-    return panel;
-}
-
-private void actualizarCursoProfesor(int idProfesor, int idCurso) {
-    String sql = "UPDATE curso_profesores SET profesor_id = ?, curso_id = ? WHERE profesor_id = ? AND curso_id = ?";
-    
-    try (Connection conexion = ConexionBD.conectar();
-         PreparedStatement stmt = conexion.prepareStatement(sql)) {
-        stmt.setInt(1, idProfesor);
-        stmt.setInt(2, idCurso);
-        stmt.setInt(3, idProfesor);
-        stmt.setInt(4, idCurso);
-        
-        int filasAfectadas = stmt.executeUpdate();
-        if (filasAfectadas > 0) {
-            ConexionBD.mostrarDatosBD_CURSO_PROFESORES();
-            outputArea.append("Asignación actualizada correctamente.\n");
-        } else {
-            JOptionPane.showMessageDialog(null, "No se pudo actualizar la asignación.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    } catch (SQLException e) {
-        mostrarError("Error al actualizar la asignación en curso_profesores: " + e.getMessage());
-    }
-}
-
-
-private void eliminarCursoProfesores(int idProfesor, int idCurso) {
-    String sql = "DELETE FROM curso_profesores WHERE profesor_id = ? AND curso_id = ?";
-
-    try (Connection conexion = ConexionBD.conectar();
-         PreparedStatement stmt = conexion.prepareStatement(sql)) {
-        stmt.setInt(1, idProfesor);
-        stmt.setInt(2, idCurso);
-
-        int filasAfectadas = stmt.executeUpdate();
-        if (filasAfectadas > 0) {
-            ConexionBD.mostrarDatosBD_CURSO_PROFESORES();  // Refrescar los datos en la interfaz
-            outputArea.append("Asignación en curso_profesores eliminada correctamente.\n");
-        } else {
-            JOptionPane.showMessageDialog(null, "No se encontró la asignación a eliminar en curso_profesores.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    } catch (SQLException e) {
-        mostrarError("Error al eliminar la asignación en curso_profesores: " + e.getMessage());
-    }
-}
 
 private boolean existeCursoProfesores(int idProfesor, int idCurso) {
     String sql = "SELECT COUNT(*) FROM curso_profesores WHERE profesor_id = ? AND curso_id = ?";
@@ -1153,25 +1047,6 @@ private boolean existeCursoProfesor(int idProfesor, int idCurso) {
     return false;
 }
 
-private void inscribirCursoProfesor(int idProfesor, int idCurso) {
-    String sql = "INSERT INTO curso_profesores (profesor_id, curso_id) VALUES (?, ?)";
-    
-    try (Connection conexion = ConexionBD.conectar();
-         PreparedStatement stmt = conexion.prepareStatement(sql)) {
-        stmt.setInt(1, idProfesor);
-        stmt.setInt(2, idCurso);
-        
-        int filasAfectadas = stmt.executeUpdate();
-        if (filasAfectadas > 0) {
-            ConexionBD.mostrarDatosBD_CURSO_PROFESORES();
-            outputArea.append("Profesor asignado al curso correctamente.\n");
-        } else {
-            JOptionPane.showMessageDialog(null, "No se pudo asignar al profesor.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    } catch (SQLException e) {
-        mostrarError("Error al asignar profesor al curso: " + e.getMessage());
-    }
-}
 
 
     private void mostrarError(String mensaje) {

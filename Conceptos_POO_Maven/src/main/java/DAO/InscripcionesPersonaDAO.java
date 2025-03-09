@@ -45,7 +45,6 @@ public class InscripcionesPersonaDAO {
             pstmtInsertar.setString(2, persona.getNombres());
             pstmtInsertar.setString(3, persona.getApellidos());
             pstmtInsertar.setString(4, persona.getEmail());
-
             return pstmtInsertar.executeUpdate() > 0;
 
         } catch (SQLException e) {
@@ -102,7 +101,6 @@ public class InscripcionesPersonaDAO {
             pstmt.setString(2, nuevoApellido);
             pstmt.setString(3, nuevoEmail);
             pstmt.setInt(4, personaID);
-
             return pstmt.executeUpdate() > 0;
 
         } catch (SQLException e) {

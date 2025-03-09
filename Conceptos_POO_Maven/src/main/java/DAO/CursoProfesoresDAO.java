@@ -62,7 +62,7 @@ public class CursoProfesoresDAO {
             pstmtInsertar.setInt(2, cursoProfesor.getCurso().getID());
             pstmtInsertar.setInt(3, cursoProfesor.getAño());
             pstmtInsertar.setInt(4, cursoProfesor.getSemestre());
-
+            ConexionBD.mostrarDatosBD_CURSO_PROFESORES();
             return pstmtInsertar.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("❌ Error al inscribir al profesor: " + e.getMessage());
@@ -80,7 +80,7 @@ public class CursoProfesoresDAO {
             pstmt.setInt(2, cursoID);
             pstmt.setInt(3, anio);
             pstmt.setInt(4, semestre);
-
+            ConexionBD.mostrarDatosBD_CURSO_PROFESORES();
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("❌ Error al eliminar al profesor: " + e.getMessage());
@@ -98,7 +98,7 @@ public class CursoProfesoresDAO {
             pstmtActualizar.setInt(2, nuevoSemestre);
             pstmtActualizar.setInt(3, profesorID);
             pstmtActualizar.setInt(4, cursoID);
-
+            ConexionBD.mostrarDatosBD_CURSO_PROFESORES();
             return pstmtActualizar.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("❌ Error al actualizar: " + e.getMessage());

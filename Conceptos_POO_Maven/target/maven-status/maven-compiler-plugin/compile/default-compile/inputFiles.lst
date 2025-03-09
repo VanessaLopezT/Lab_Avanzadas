@@ -24,8 +24,13 @@ C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\model
 C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\modelo\Persona.java
 C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\modelo\Profesor.java
 C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\modelo\Programa.java
+C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\servicios\CursoProfesoresService.java
+C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\servicios\CursoProfesorService.java
+C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\servicios\CursoService.java
+C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\servicios\CursosInscritosService.java
 C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\servicios\EstudianteService.java
 C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\servicios\FacultadService.java
+C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\servicios\InscripcionesPersonaService.java
 C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\servicios\InscripcionService.java
 C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\servicios\PersonaService.java
 C:\Users\VANESA\OneDrive\Escritorio\Java\Conceptos_POO_Maven\src\main\java\servicios\ProfesorService.java

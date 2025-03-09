@@ -52,6 +52,7 @@ public class UniversidadManager {
     CursoProfesoresDAO cursoProfesoresDAO=new CursoProfesoresDAO();
     CursosInscritosDAO cursosInscritosDAO=new CursosInscritosDAO(); 
     InscripcionesPersonaDAO inscripcionesPersonaDAO=new InscripcionesPersonaDAO();
+    
     public void inicializarDatosTotales() {
         inicializarDatos_Personas_Decanos();
         inicializarDatos_Facultad_Programa();
@@ -63,8 +64,7 @@ public class UniversidadManager {
 
     public void guardar_en_BD() {
         try (Connection conexion = ConexionBD.conectar()) {
-            verificarYCorregirTablaCursosInscritos();
-            verificarYCorregirTablaCursoProfesores();
+
             System.out.println("\n Guardando datos por defecto en la base de datos...");
             
             
@@ -97,7 +97,7 @@ public class UniversidadManager {
             for (Persona persona : personasGestor) {inscripcionesPersona.inscribir(persona);  
             }
 
-            agregarDatosExtras();
+ 
             
         } catch (SQLException e) {
             e.printStackTrace();
@@ -198,111 +198,7 @@ public class UniversidadManager {
         inscripcionesGestor.add(DAOFactory.crearInscripcion(cursosGestor.get(2), 2023, 5, estudiantesGestor.get(1)));
     }
     
-    public void agregarDatosExtras() {
-       
-    if (personasGestor.isEmpty()) {
-        System.err.println("Error: No hay personas registradas.");
-        return;
-    }
-
-    for (Persona persona : personasGestor) {
-        inscripcionesPersona.inscribir(persona);
-    }
-
-    // Verifica que existan estudiantes antes de inscribirlos
-    if (!estudiantesGestor.isEmpty() && !cursosGestor.isEmpty()) {
-        if (estudiantesGestor.size() > 0 && cursosGestor.size() > 0) {
-            cursosInscritosDAO.inscribir(DAOFactory.crearInscripcion(cursosGestor.get(0), 2024, 1, estudiantesGestor.get(0)));
-        }
-        if (estudiantesGestor.size() > 1 && cursosGestor.size() > 1) {
-            cursosInscritosDAO.inscribir(DAOFactory.crearInscripcion(cursosGestor.get(1), 2024, 2, estudiantesGestor.get(1)));
-        }
-    } else {
-        System.err.println("❌ Error: No hay estudiantes o cursos en la lista.");
-    }
-
-    // Verifica que existan profesores antes de inscribirlos
-    if (!profesoresGestor.isEmpty() && !cursosGestor.isEmpty()) {
-        if (profesoresGestor.size() > 0 && cursosGestor.size() > 0) {
-            
-            cursoProfesoresDAO.inscribir(DAOFactory.crearCursoProfesor(profesoresGestor.get(0), 2024, 1, cursosGestor.get(0)));
-        }
-        if (profesoresGestor.size() > 1 && cursosGestor.size() > 1) {
-            cursoProfesoresDAO.inscribir(DAOFactory.crearCursoProfesor(profesoresGestor.get(1), 2024, 2, cursosGestor.get(1)));
-        }
-    } else {
-        System.err.println("❌ Error: No hay profesores o cursos en la lista.");
-    }
-    
-}
-
-public void verificarYCorregirTablaCursosInscritos() {
-    try (Connection conexion = ConexionBD.conectar()) {
-        DatabaseMetaData metaData = conexion.getMetaData();
-        ResultSet columnas = metaData.getColumns(null, null, "CURSOS_INSCRITOS", "ESTUDIANTE_ID");
-
-        if (!columnas.next()) { // Si no existe la columna ESTUDIANTE_ID
-            System.out.println("⚠️ La columna ESTUDIANTE_ID no existe en CURSOS_INSCRITOS. Corrigiendo...");
-
-            // Eliminar la tabla si ya existe
-            try (java.sql.Statement stmt = conexion.createStatement()) {
-                stmt.execute("DROP TABLE IF EXISTS CURSOS_INSCRITOS");
-                
-
-                // Volver a crear la tabla con la estructura correcta
-                String sqlCursosInscritos = "CREATE TABLE CURSOS_INSCRITOS (" +
-                        "ID INT AUTO_INCREMENT PRIMARY KEY, " +
-                        "INSCRIPCION_ID INT NOT NULL, " +
-                        "ESTUDIANTE_ID INT NOT NULL, " +
-                        "FOREIGN KEY (INSCRIPCION_ID) REFERENCES CURSO(ID) ON DELETE CASCADE, " +
-                        "FOREIGN KEY (ESTUDIANTE_ID) REFERENCES ESTUDIANTE(ID) ON DELETE CASCADE" +
-                        ");";
-
-                stmt.execute(sqlCursosInscritos);
-             }
-        } 
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-}
-
-public void verificarYCorregirTablaCursoProfesores() {
-    try (Connection conexion = ConexionBD.conectar()) {
-        DatabaseMetaData metaData = conexion.getMetaData();
-
-        // Verificar si existen las columnas "anio" y "semestre"
-        ResultSet columnaAnio = metaData.getColumns(null, null, "CURSO_PROFESORES", "ANIO");
-        boolean existeAnio = columnaAnio.next();
-        
-        ResultSet columnaSemestre = metaData.getColumns(null, null, "CURSO_PROFESORES", "SEMESTRE");
-        boolean existeSemestre = columnaSemestre.next();
-
-        if (!existeAnio || !existeSemestre) {
-            System.out.println(" Faltan columnas en CURSO_PROFESORES. Corrigiendo...");
-
-            try (Statement stmt = conexion.createStatement()) {
-                if (!existeAnio) {
-                    // Agregar la columna anio
-                    stmt.execute("ALTER TABLE CURSO_PROFESORES ADD COLUMN anio INT DEFAULT 2024");
-               }
-                if (!existeSemestre) {
-                    // Agregar la columna semestre 
-                    stmt.execute("ALTER TABLE CURSO_PROFESORES ADD COLUMN semestre INT DEFAULT 1");
-                }
-
-                // Asegurar que todas las filas tengan valores antes de cambiar a NOT NULL
-                stmt.execute("UPDATE CURSO_PROFESORES SET anio = 2024 WHERE anio IS NULL");
-                stmt.execute("UPDATE CURSO_PROFESORES SET semestre = 1 WHERE semestre IS NULL");
-                // Ahora que todas las filas tienen valores, hacemos las columnas NOT NULL
-                stmt.execute("ALTER TABLE CURSO_PROFESORES ALTER COLUMN anio SET NOT NULL");
-                stmt.execute("ALTER TABLE CURSO_PROFESORES ALTER COLUMN semestre SET NOT NULL");
-           }
-        } 
-    } catch (SQLException e) {
-        System.err.println("❌ Error al verificar/corregir la tabla: " + e.getMessage());
-    }
-}
-
+ 
   public void mostrarColumnasTabla(String nombreTabla) {
     try (Connection conexion = ConexionBD.conectar()) {
         DatabaseMetaData metaData = conexion.getMetaData();
